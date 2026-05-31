@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EigoDaily">
+    <title>EigoDaily</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+        .highlight-phrase {
+            background: #fef08a;
+            border-radius: 4px;
+            padding: 1px 3px;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: inline;
+        }
+        .highlight-phrase.active { background: #fbbf24; }
+
+        .phrase-tooltip {
+            background: #1e293b;
+            color: white;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.25s ease; }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid #dbeafe;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div id="app"></div>
+
+<script>
+// ===== CONSTANTS =====
+const CATEGORIES = [
+    {
+        id: 'cs',
+        label: 'CS英語',
+        emoji: '💼',
+        prompt: 'Customer Success in SaaS: onboarding new clients, churn prevention conversations, QBRs, stakeholder communication, and success planning'
+    },
+    {
+        id: 'intro',
+        label: '自己紹介',
+        emoji: '👤',
+        prompt: 'professional self-introduction and job interview English for a Customer Success Manager targeting major Japanese companies like Honda'
+    },
+    {
+        id: 'negotiation',
+        label: 'ビジネス交渉',
+        emoji: '🤝',
+        prompt: 'business negotiation, persuasion, escalation handling, and diplomatic communication in corporate B2B settings'
+    },
+    {
+        id: 'ai',
+        label: 'AI時事',
+        emoji: '🤖',
+        prompt: 'AI adoption in enterprise, SaaS industry trends, DAP (Digital Adoption Platform) technology, and discussing tech topics professionally'
+    },
+];
+
+// ===== STATE =====
+const state = {
+    view: localStorage.getItem('apiKey') ? 'home' : 'setup',
+    apiKey: localStorage.getItem('apiKey') || '',
+    category: 'cs',
+    episodes: JSON.parse(localStorage.getItem('episodes') || '{}'),
+    currentEpisode: null,
+    ttsRate: parseFloat(localStorage.getItem('ttsRate') || '1.0'),
+    isPlaying: false,
+    isPaused: false,
+    activePhrase: null,
+};
+
+// ===== TTS ENGINE =====
+let ttsSegments = [];
+let ttsIndex = 0;
+
+function ttsSpeak(episode) {
+    speechSynthesis.cancel();
+    ttsSegments = episode.segments;
+    ttsIndex = 0;
+    ttsPlayNext();
+}
+
+function ttsPlayNext() {
+    if (ttsIndex >= ttsSegments.length) {
+        state.isPlaying = false;
+        state.isPaused = false;
+        updatePlayerUI();
+        return;
+    }
+    const seg = ttsSegments[ttsIndex];
+    const utter = new SpeechSynthesisUtterance(seg.text);
+    utter.lang = 'en-US';
+    utter.rate = state.ttsRate;
+
+    const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+    if (voices.length > 0) {
+        // Speaker B gets second voice (usually female)
+        utter.voice = (seg.speaker === 'B' && voices.length > 1) ? voices[1] : voices[0];
+    }
+
+    utter.onend = () => { ttsIndex++; ttsPlayNext(); };
+    utter.onerror = () => { state.isPlaying = false; updatePlayerUI(); };
+
+    speechSynthesis.speak(utter);
+}
+
+function updatePlayerUI() {
+    const btn = document.getElementById('playBtn');
+    if (!btn) return;
+    btn.textContent = state.isPlaying ? '⏸ 一時停止' : '▶ 再生';
+}
+
+// ===== CLAUDE API =====
+async function generateEpisode(categoryId) {
+    const cat = CATEGORIES.find(c => c.id === categoryId);
+
+    const systemPrompt = `You are an English learning content creator for a Japanese business professional.
+The learner is: Male, 34, Customer Success Manager at a SaaS company in Tokyo, targeting TOEIC 700-800 and job interviews at major Japanese companies.
+Learning style: Podcast-style listening during commute and bath time. 2-3 minutes per episode.
+Always return ONLY valid JSON. No markdown fences, no extra text.`;
+
+    const userPrompt = `Create a 2-3 minute Business English learning episode.
+Topic: ${cat.prompt}
+
+Return this exact JSON structure:
+{
+  "title": "Specific, engaging episode title",
+  "duration": "2 min",
+  "categoryLabel": "${cat.label}",
+  "speakers": [
+    {"id": "A", "name": "Name (Role)", "gender": "male"},
+    {"id": "B", "name": "Name (Role)", "gender": "female"}
+  ],
+  "segments": [
+    {
+      "speaker": "A",
+      "text": "Natural spoken English. 2-4 sentences per segment.",
+      "highlights": [
+        {
+          "phrase": "exact phrase from the text above (word-for-word match)",
+          "explanation": "日本語で意味・ニュアンス・使い方を2〜3文で説明"
+        }
+      ]
+    }
+  ]
+}
+
+Rules:
+- 4-6 segments total, realistic dialogue between two professionals
+- 2-3 highlights per segment, choose practical business phrases
+- Phrases must be verbatim substrings of the segment text
+- Japanese explanations should be practical and include usage notes`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'x-api-key': state.apiKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+            'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 2048,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: userPrompt }]
+        })
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || `APIエラー (${res.status})`);
+    }
+
+    const data = await res.json();
+    const raw = data.content[0].text;
+
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('レスポンスのパースに失敗しました');
+
+    const episode = JSON.parse(match[0]);
+    episode.generatedAt = new Date().toISOString();
+    return episode;
+}
+
+// ===== HELPERS =====
+function getAllPhrases(episode) {
+    const out = [];
+    episode.segments.forEach(seg => {
+        (seg.highlights || []).forEach(h => out.push(h));
+    });
+    return out;
+}
+
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function buildHighlightedText(text, highlights, segIndex) {
+    if (!highlights || highlights.length === 0) return escapeHtml(text);
+
+    // Sort highlights by position in text (longest first to avoid partial overlaps)
+    const sorted = [...highlights]
+        .map((h, i) => ({ ...h, idx: i, pos: text.indexOf(h.phrase) }))
+        .filter(h => h.pos !== -1)
+        .sort((a, b) => a.pos - b.pos);
+
+    let result = '';
+    let cursor = 0;
+
+    sorted.forEach(h => {
+        if (h.pos < cursor) return; // skip overlapping
+        result += escapeHtml(text.slice(cursor, h.pos));
+        result += `<span
+            class="highlight-phrase"
+            data-seg="${segIndex}"
+            data-hi="${h.idx}"
+            data-phrase="${encodeURIComponent(h.phrase)}"
+            data-explanation="${encodeURIComponent(h.explanation)}"
+        >${escapeHtml(h.phrase)}</span>`;
+        cursor = h.pos + h.phrase.length;
+    });
+
+    result += escapeHtml(text.slice(cursor));
+    return result;
+}
+
+// ===== RENDER =====
+function render() {
+    const app = document.getElementById('app');
+    if (state.view === 'setup')   app.innerHTML = renderSetup();
+    if (state.view === 'home')    app.innerHTML = renderHome();
+    if (state.view === 'episode') app.innerHTML = renderEpisode();
+    attachListeners();
+}
+
+// --- Setup ---
+function renderSetup() {
+    return `
+    <div class="min-h-screen flex items-center justify-center px-6 bg-gradient-to-b from-blue-50 to-white">
+      <div class="w-full max-w-sm">
+        <div class="text-center mb-8">
+          <div class="text-6xl mb-4">🎧</div>
+          <h1 class="text-2xl font-bold text-gray-900">EigoDaily</h1>
+          <p class="text-gray-500 mt-2 text-sm">ビジネス英語を、毎日2分で。</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Anthropic API Key</label>
+          <input
+            id="apiKeyInput"
+            type="password"
+            placeholder="sk-ant-..."
+            value="${escapeHtml(state.apiKey)}"
+            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+          <p class="text-xs text-gray-400 mt-2">キーはこの端末のみに保存。外部送信はしません。</p>
+          <button id="saveKeyBtn" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl font-semibold text-sm active:bg-blue-700 transition-colors">
+            はじめる →
+          </button>
+        </div>
+        <p class="text-center text-xs text-gray-400 mt-4">
+          APIキーは <span class="text-blue-500">console.anthropic.com</span> で取得できます
+        </p>
+      </div>
+    </div>`;
+}
+
+// --- Home ---
+function renderHome() {
+    const cached = state.episodes[state.category];
+    return `
+    <div class="min-h-screen bg-gray-50">
+      <!-- Header -->
+      <div class="bg-white border-b border-gray-100 px-4 pt-12 pb-4 flex items-center justify-between sticky top-0 z-10">
+        <div>
+          <h1 class="text-xl font-bold text-gray-900">🎧 EigoDaily</h1>
+          <p class="text-xs text-gray-400">ビジネス英語、毎日2分</p>
+        </div>
+        <button id="settingsBtn" class="text-2xl">⚙️</button>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="px-4 pt-4">
+        <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          ${CATEGORIES.map(c => `
+            <button
+              class="category-tab flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all"
+              data-category="${c.id}"
+              style="${state.category === c.id
+                ? 'background:#2563eb;color:white;'
+                : 'background:white;color:#374151;border:1px solid #e5e7eb;'}"
+            >${c.emoji} ${c.label}</button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="px-4 pt-4 pb-8">
+        ${cached ? renderEpisodeCard(cached) : renderGenerateCard()}
+        ${cached ? `
+          <button id="regenerateBtn" class="w-full mt-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-500 font-medium active:bg-gray-50">
+            🔄 新しいエピソードを生成する
+          </button>` : ''}
+      </div>
+    </div>`;
+}
+
+function renderEpisodeCard(ep) {
+    const isDialog = ep.speakers && ep.speakers.length > 1;
+    return `
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-5 py-4" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
+        <p class="text-blue-200 text-xs font-semibold uppercase tracking-widest">${ep.categoryLabel}</p>
+        <h2 class="text-white font-bold text-lg mt-1 leading-snug">${escapeHtml(ep.title)}</h2>
+        <p class="text-blue-200 text-xs mt-2">⏱ ${ep.duration} &nbsp;•&nbsp; ${isDialog ? '対話形式' : 'モノローグ'}</p>
+      </div>
+      <div class="p-5">
+        <p class="text-gray-500 text-sm leading-relaxed line-clamp-3">${escapeHtml(ep.segments[0]?.text || '')}</p>
+        <button id="openEpisodeBtn" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl font-semibold text-sm active:bg-blue-700 transition-colors">
+          学習を始める →
+        </button>
+      </div>
+    </div>`;
+}
+
+function renderGenerateCard() {
+    return `
+    <div id="generateCard" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+      <div class="text-5xl mb-3">✨</div>
+      <h2 class="font-bold text-gray-900 text-lg">今日のエピソードを生成</h2>
+      <p class="text-gray-500 text-sm mt-2 mb-6">AIが2〜3分のビジネス英語スクリプトを作成します</p>
+      <button id="generateBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold text-sm active:bg-blue-700">
+        生成する
+      </button>
+    </div>`;
+}
+
+// --- Episode ---
+function renderEpisode() {
+    const ep = state.currentEpisode;
+    const isDialog = ep.speakers && ep.speakers.length > 1;
+    const allPhrases = getAllPhrases(ep);
+
+    return `
+    <div class="min-h-screen bg-gray-50">
+      <!-- Header -->
+      <div class="bg-white border-b border-gray-100 px-4 pt-12 pb-4 flex items-center gap-3 sticky top-0 z-10">
+        <button id="backBtn" class="text-blue-600 font-semibold text-sm whitespace-nowrap">← 戻る</button>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs text-gray-400 truncate">${escapeHtml(ep.categoryLabel)}</p>
+          <h1 class="font-bold text-gray-900 text-sm truncate leading-tight">${escapeHtml(ep.title)}</h1>
+        </div>
+        <span class="text-xs text-gray-400 whitespace-nowrap">⏱ ${ep.duration}</span>
+      </div>
+
+      <!-- Script -->
+      <div class="px-4 pt-4 pb-40">
+        ${isDialog && ep.speakers ? `
+          <div class="flex gap-3 mb-4">
+            ${ep.speakers.map((s, i) => `
+              <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                <span class="w-2.5 h-2.5 rounded-full inline-block" style="background:${i === 0 ? '#3b82f6' : '#22c55e'}"></span>
+                ${escapeHtml(s.name)}
+              </div>
+            `).join('')}
+          </div>` : ''}
+
+        ${ep.segments.map((seg, si) => {
+            const speakerIndex = ep.speakers ? ep.speakers.findIndex(s => s.id === seg.speaker) : 0;
+            const borderColor = speakerIndex === 0 ? '#3b82f6' : '#22c55e';
+            const highlightedText = buildHighlightedText(seg.text, seg.highlights, si);
+            const speaker = ep.speakers ? ep.speakers.find(s => s.id === seg.speaker) : null;
+
+            return `
+            <div class="mb-4">
+              ${isDialog && speaker ? `<p class="text-xs font-bold text-gray-400 uppercase mb-1.5 pl-4">${escapeHtml(speaker.name)}</p>` : ''}
+              <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 ${isDialog ? 'border-l-4' : ''}"
+                   style="${isDialog ? `border-left-color:${borderColor};border-left-width:4px;` : ''}">
+                <p class="text-gray-900 text-base leading-relaxed">${highlightedText}</p>
+              </div>
+            </div>`;
+        }).join('')}
+
+        <!-- Key Phrases Summary -->
+        ${allPhrases.length > 0 ? `
+        <div class="mt-6 bg-amber-50 rounded-2xl p-4 border border-amber-100">
+          <h3 class="font-bold text-gray-800 text-sm mb-4">📌 今日のキーフレーズ (${allPhrases.length})</h3>
+          ${allPhrases.map(p => `
+            <div class="mb-4 last:mb-0 pb-4 last:pb-0 border-b border-amber-100 last:border-0">
+              <p class="font-semibold text-gray-900 text-sm">${escapeHtml(p.phrase)}</p>
+              <p class="text-gray-600 text-xs mt-1 leading-relaxed">${escapeHtml(p.explanation)}</p>
+            </div>
+          `).join('')}
+        </div>` : ''}
+      </div>
+
+      <!-- Player -->
+      <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-4 shadow-2xl">
+        <!-- Speed -->
+        <div class="flex justify-center gap-2 mb-3">
+          ${[0.75, 1.0, 1.25].map(r => `
+            <button
+              class="speed-btn px-5 py-1.5 rounded-full text-sm font-semibold transition-all"
+              data-rate="${r}"
+              style="${state.ttsRate === r
+                ? 'background:#2563eb;color:white;'
+                : 'background:#f3f4f6;color:#374151;'}"
+            >${r}x</button>
+          `).join('')}
+        </div>
+        <!-- Controls -->
+        <div class="flex items-center gap-3">
+          <button id="rewindBtn" class="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 text-lg active:bg-gray-200">⏮</button>
+          <button id="playBtn" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold text-base active:bg-blue-700 transition-colors">
+            ${state.isPlaying ? '⏸ 一時停止' : '▶ 再生'}
+          </button>
+          <button id="stopBtn" class="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 text-lg active:bg-gray-200">⏹</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ===== LOADING STATE =====
+function showLoading(container) {
+    container.innerHTML = `
+    <div class="p-10 text-center">
+      <div class="spinner mb-4"></div>
+      <p class="text-gray-600 font-medium">AIがスクリプトを生成中...</p>
+      <p class="text-gray-400 text-sm mt-1">最大10秒ほどかかります</p>
+    </div>`;
+}
+
+function showError(container, message) {
+    container.innerHTML = `
+    <div class="p-8 text-center">
+      <div class="text-4xl mb-3">⚠️</div>
+      <p class="text-gray-800 font-semibold">生成に失敗しました</p>
+      <p class="text-gray-500 text-sm mt-1 mb-4">${escapeHtml(message)}</p>
+      <button onclick="render()" class="px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium">
+        やり直す
+      </button>
+    </div>`;
+}
+
+// ===== EVENT LISTENERS =====
+function attachListeners() {
+    // Setup: save API key
+    const saveKeyBtn = document.getElementById('saveKeyBtn');
+    if (saveKeyBtn) {
+        saveKeyBtn.addEventListener('click', () => {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (!key) { alert('APIキーを入力してください'); return; }
+            state.apiKey = key;
+            localStorage.setItem('apiKey', key);
+            state.view = 'home';
+            render();
+        });
+        document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') saveKeyBtn.click();
+        });
+    }
+
+    // Settings: change API key
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => {
+            const newKey = prompt('Anthropic APIキー:', state.apiKey);
+            if (newKey !== null && newKey.trim()) {
+                state.apiKey = newKey.trim();
+                localStorage.setItem('apiKey', state.apiKey);
+                alert('APIキーを更新しました');
+            }
+        });
+    }
+
+    // Category tabs
+    document.querySelectorAll('.category-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.category = btn.dataset.category;
+            render();
+        });
+    });
+
+    // Generate
+    const generateBtn = document.getElementById('generateBtn');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', async () => {
+            const card = document.getElementById('generateCard');
+            showLoading(card);
+            try {
+                const ep = await generateEpisode(state.category);
+                state.episodes[state.category] = ep;
+                localStorage.setItem('episodes', JSON.stringify(state.episodes));
+                state.currentEpisode = ep;
+                state.view = 'episode';
+                render();
+            } catch (err) {
+                showError(card, err.message);
+            }
+        });
+    }
+
+    // Regenerate
+    const regenerateBtn = document.getElementById('regenerateBtn');
+    if (regenerateBtn) {
+        regenerateBtn.addEventListener('click', async () => {
+            const btn = regenerateBtn;
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+
+            // Replace card area with loading
+            const card = document.querySelector('.bg-white.rounded-2xl.shadow-sm');
+            if (card) showLoading(card);
+
+            try {
+                const ep = await generateEpisode(state.category);
+                state.episodes[state.category] = ep;
+                localStorage.setItem('episodes', JSON.stringify(state.episodes));
+                state.currentEpisode = ep;
+                state.view = 'episode';
+                render();
+            } catch (err) {
+                render(); // restore
+                alert('生成失敗: ' + err.message);
+            }
+        });
+    }
+
+    // Open episode
+    const openEpisodeBtn = document.getElementById('openEpisodeBtn');
+    if (openEpisodeBtn) {
+        openEpisodeBtn.addEventListener('click', () => {
+            state.currentEpisode = state.episodes[state.category];
+            state.view = 'episode';
+            render();
+        });
+    }
+
+    // Back
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            speechSynthesis.cancel();
+            state.isPlaying = false;
+            state.isPaused = false;
+            state.view = 'home';
+            render();
+        });
+    }
+
+    // Speed buttons
+    document.querySelectorAll('.speed-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.ttsRate = parseFloat(btn.dataset.rate);
+            localStorage.setItem('ttsRate', String(state.ttsRate));
+            if (state.isPlaying) {
+                speechSynthesis.cancel();
+                ttsSpeak(state.currentEpisode);
+            }
+            // Update button styles
+            document.querySelectorAll('.speed-btn').forEach(b => {
+                const active = parseFloat(b.dataset.rate) === state.ttsRate;
+                b.style.background = active ? '#2563eb' : '#f3f4f6';
+                b.style.color = active ? 'white' : '#374151';
+            });
+        });
+    });
+
+    // Play / Pause
+    const playBtn = document.getElementById('playBtn');
+    if (playBtn) {
+        playBtn.addEventListener('click', () => {
+            if (state.isPlaying) {
+                speechSynthesis.pause();
+                state.isPlaying = false;
+                state.isPaused = true;
+                playBtn.textContent = '▶ 再生';
+            } else if (state.isPaused) {
+                speechSynthesis.resume();
+                state.isPlaying = true;
+                state.isPaused = false;
+                playBtn.textContent = '⏸ 一時停止';
+            } else {
+                ttsSpeak(state.currentEpisode);
+                state.isPlaying = true;
+                state.isPaused = false;
+                playBtn.textContent = '⏸ 一時停止';
+            }
+        });
+    }
+
+    // Stop
+    const stopBtn = document.getElementById('stopBtn');
+    if (stopBtn) {
+        stopBtn.addEventListener('click', () => {
+            speechSynthesis.cancel();
+            state.isPlaying = false;
+            state.isPaused = false;
+            ttsIndex = 0;
+            const btn = document.getElementById('playBtn');
+            if (btn) btn.textContent = '▶ 再生';
+        });
+    }
+
+    // Rewind
+    const rewindBtn = document.getElementById('rewindBtn');
+    if (rewindBtn) {
+        rewindBtn.addEventListener('click', () => {
+            speechSynthesis.cancel();
+            ttsIndex = 0;
+            if (state.isPlaying) {
+                ttsSpeak(state.currentEpisode);
+            }
+        });
+    }
+
+    // Phrase highlights
+    document.querySelectorAll('.highlight-phrase').forEach(el => {
+        el.addEventListener('click', e => {
+            e.stopPropagation();
+            const phraseId = `${el.dataset.seg}-${el.dataset.hi}`;
+
+            // Remove all existing tooltips
+            document.querySelectorAll('.phrase-tooltip').forEach(t => t.remove());
+            document.querySelectorAll('.highlight-phrase.active').forEach(h => h.classList.remove('active'));
+
+            if (state.activePhrase === phraseId) {
+                state.activePhrase = null;
+                return;
+            }
+
+            state.activePhrase = phraseId;
+            el.classList.add('active');
+
+            const phrase = decodeURIComponent(el.dataset.phrase);
+            const explanation = decodeURIComponent(el.dataset.explanation);
+
+            const tooltip = document.createElement('div');
+            tooltip.className = 'phrase-tooltip fade-in';
+            tooltip.innerHTML = `<strong style="color:#fde68a">${escapeHtml(phrase)}</strong><br><span style="color:#e2e8f0;font-size:12px">${escapeHtml(explanation)}</span>`;
+
+            // Insert after the parent card div
+            const card = el.closest('.bg-white');
+            if (card) card.appendChild(tooltip);
+        });
+    });
+
+    // Click outside to close tooltip
+    document.addEventListener('click', e => {
+        if (!e.target.classList.contains('highlight-phrase')) {
+            document.querySelectorAll('.phrase-tooltip').forEach(t => t.remove());
+            document.querySelectorAll('.highlight-phrase.active').forEach(h => h.classList.remove('active'));
+            state.activePhrase = null;
+        }
+    }, { passive: true });
+}
+
+// ===== INIT =====
+// Load voices asynchronously
+if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = () => {};
+}
+
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+render();
+</script>
+</body>
+</html>
