@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EigoDaily">
@@ -12,41 +12,76 @@
     <link rel="apple-touch-icon" href="icon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-
-        .highlight-phrase {
-            background: #fef08a;
-            border-radius: 4px;
-            padding: 1px 3px;
-            cursor: pointer;
-            transition: background 0.15s;
-            display: inline;
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #eef2ff;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --nav-h: 64px;
         }
-        .highlight-phrase.active { background: #fbbf24; }
+        * { box-sizing: border-box; }
+        body {
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8fafc;
+            overscroll-behavior: none;
+        }
+
+        /* Bottom nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            height: var(--nav-h);
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .nav-btn {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: none; border: none; cursor: pointer;
+            padding: 8px 4px; gap: 3px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-icon { font-size: 22px; line-height: 1; }
+        .nav-label { font-size: 10px; font-weight: 600; }
+
+        /* Progress bar */
+        .progress-bar-track {
+            height: 3px; background: #e5e7eb; border-radius: 99px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; background: var(--primary); border-radius: 99px;
+            transition: width 0.3s ease;
+        }
+
+        /* Phrase highlights */
+        .highlight-phrase {
+            background: #fef9c3; border-radius: 4px; padding: 1px 3px;
+            cursor: pointer; transition: background 0.15s; display: inline;
+            border-bottom: 1.5px solid #fbbf24;
+        }
+        .highlight-phrase.active { background: #fde68a; }
 
         .phrase-tooltip {
-            background: #1e293b;
-            color: white;
-            padding: 10px 12px;
-            border-radius: 10px;
-            font-size: 13px;
-            line-height: 1.6;
-            margin-top: 8px;
+            background: #1e293b; color: white;
+            padding: 10px 12px; border-radius: 10px;
+            font-size: 13px; line-height: 1.6; margin-top: 8px;
         }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(6px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        .fade-in { animation: fadeIn 0.25s ease; }
+        .fade-in { animation: fadeIn 0.2s ease; }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .spinner {
             width: 36px; height: 36px;
-            border: 3px solid #dbeafe;
-            border-top-color: #2563eb;
+            border: 3px solid #e0e7ff; border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin: 0 auto;
@@ -55,128 +90,274 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .line-clamp-3 {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+        .line-clamp-2 {
+            display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
         }
+        .line-clamp-3 {
+            display: -webkit-box; -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        /* Category card */
+        .cat-card {
+            border-radius: 14px; padding: 14px 10px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 6px; cursor: pointer; border: 2px solid transparent;
+            transition: border-color 0.15s, transform 0.1s;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .cat-card:active { transform: scale(0.96); }
+        .cat-card.active { border-color: var(--primary); background: var(--primary-light); }
+        .cat-emoji { font-size: 26px; }
+        .cat-label { font-size: 11px; font-weight: 700; color: #374151; text-align: center; }
+
+        /* Segment card */
+        .seg-card {
+            background: white; border-radius: 14px; padding: 16px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+        .seg-card.playing { border-color: var(--primary); box-shadow: 0 0 0 2px #e0e7ff; }
+
+        /* Speed pills */
+        .speed-pill {
+            padding: 6px 18px; border-radius: 99px; font-size: 13px;
+            font-weight: 700; border: none; cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        /* Primary button */
+        .btn-primary {
+            background: var(--primary); color: white;
+            border-radius: 14px; border: none; cursor: pointer;
+            font-weight: 700; transition: background 0.15s;
+        }
+        .btn-primary:active { background: var(--primary-dark); }
+
+        /* Ghost button */
+        .btn-ghost {
+            background: #f3f4f6; color: #374151;
+            border-radius: 14px; border: none; cursor: pointer;
+            font-weight: 600; transition: background 0.15s;
+        }
+        .btn-ghost:active { background: #e5e7eb; }
+
+        /* Section heading */
+        .section-heading {
+            font-size: 13px; font-weight: 700; color: #6b7280;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        /* Card shadow */
+        .card { background: white; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body>
 <div id="app"></div>
 
 <script>
 // ===== CONSTANTS =====
 const CATEGORIES = [
-    {
-        id: 'cs',
-        label: 'CS英語',
-        emoji: '💼',
-        prompt: 'Customer Success in SaaS: onboarding new clients, churn prevention conversations, QBRs, stakeholder communication, and success planning'
-    },
-    {
-        id: 'intro',
-        label: '自己紹介',
-        emoji: '👤',
-        prompt: 'professional self-introduction and job interview English for a Customer Success Manager targeting major Japanese companies like Honda'
-    },
-    {
-        id: 'negotiation',
-        label: 'ビジネス交渉',
-        emoji: '🤝',
-        prompt: 'business negotiation, persuasion, escalation handling, and diplomatic communication in corporate B2B settings'
-    },
-    {
-        id: 'ai',
-        label: 'AI時事',
-        emoji: '🤖',
-        prompt: 'AI adoption in enterprise, SaaS industry trends, DAP (Digital Adoption Platform) technology, and discussing tech topics professionally'
-    },
+    { id: 'cs',          label: 'CS英語',      emoji: '💼', prompt: 'Customer Success in SaaS: onboarding new clients, churn prevention conversations, QBRs, stakeholder communication, and success planning' },
+    { id: 'intro',       label: '自己紹介',    emoji: '👤', prompt: 'professional self-introduction and job interview English for a Customer Success Manager targeting major Japanese companies like Honda' },
+    { id: 'negotiation', label: 'ビジネス交渉', emoji: '🤝', prompt: 'business negotiation, persuasion, escalation handling, and diplomatic communication in corporate B2B settings' },
+    { id: 'ai',          label: 'AI時事',      emoji: '🤖', prompt: 'AI adoption in enterprise, SaaS industry trends, DAP (Digital Adoption Platform) technology, and discussing tech topics professionally' },
+    { id: 'daily',       label: '日常会話',    emoji: '💬', prompt: 'everyday English conversation: talking about hobbies, weekends, food, weather, family, feelings — natural casual English used between friends' },
+    { id: 'travel',      label: '旅行',        emoji: '✈️', prompt: 'travel English: checking in at airports and hotels, ordering food, asking for directions, sightseeing, dealing with unexpected situations abroad' },
+    { id: 'culture',     label: '映画・カルチャー', emoji: '🎬', prompt: 'casual English inspired by movies, TV shows, and pop culture: expressions, slang, and natural conversations from entertainment media' },
+    { id: 'custom',      label: 'Custom',      emoji: '✏️', prompt: '' },
 ];
+
+const CUSTOM_FORMATS = [
+    { label: '2人の対話',     value: 'a realistic back-and-forth dialogue between exactly 2 speakers (A and B)',                      speakers: 2 },
+    { label: '複数人の会話',  value: 'a group conversation with 3 speakers (A, B, and C) naturally talking together',                speakers: 3 },
+    { label: 'スピーチ',      value: 'a monologue speech delivered by a single speaker (A only) to an audience',                     speakers: 1 },
+    { label: 'ポッドキャスト', value: 'a podcast-style narration by a single host (A only) explaining a topic in an engaging way',  speakers: 1 },
+    { label: 'インタビュー',  value: 'an interview format where A is the interviewer and B is the guest being interviewed',          speakers: 2 },
+    { label: 'ニュース解説',  value: 'a news broadcast style with anchor A introducing the story and reporter B adding commentary', speakers: 2 },
+];
+
+const SPEAKER_COLORS = ['#4f46e5', '#10b981', '#f59e0b'];
 
 // ===== STATE =====
 const state = {
-    view: localStorage.getItem('apiKey') ? 'home' : 'setup',
+    view: localStorage.getItem('apiKey') ? 'main' : 'setup',
+    bottomTab: 'today',
     apiKey: localStorage.getItem('apiKey') || '',
-    category: 'cs',
+    category: localStorage.getItem('lastCategory') || 'cs',
+    lastCategory: localStorage.getItem('lastCategory') || 'cs',
     episodes: JSON.parse(localStorage.getItem('episodes') || '{}'),
     currentEpisode: null,
     ttsRate: parseFloat(localStorage.getItem('ttsRate') || '1.0'),
+    voiceNameA: localStorage.getItem('voiceNameA') || '',
+    voiceNameB: localStorage.getItem('voiceNameB') || '',
     isPlaying: false,
     isPaused: false,
     activePhrase: null,
+    showTranslations: false,
+    savedPhrases: JSON.parse(localStorage.getItem('savedPhrases') || '[]'),
+    customFormat: localStorage.getItem('customFormat') || '',
+    customTopic: localStorage.getItem('customTopic') || '',
+    categoryOptions: JSON.parse(localStorage.getItem('categoryOptions') || '{}'),
+    optionsPanelOpen: false,
 };
 
 // ===== TTS ENGINE =====
 let ttsSegments = [];
 let ttsIndex = 0;
 
+const VOICE_PRIORITY = [
+    'Google US English', 'Google UK English Female', 'Google UK English Male',
+    'Samantha', 'Karen', 'Daniel', 'Moira', 'Fiona', 'Victoria',
+    'Google', 'Natural', 'Enhanced', 'Premium',
+];
+
+function getEnglishVoices() {
+    return speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+}
+
+function getBestVoice(preferFemale = false) {
+    const voices = getEnglishVoices();
+    if (voices.length === 0) return null;
+    for (const pref of VOICE_PRIORITY) {
+        const match = voices.find(v => {
+            if (!v.name.includes(pref.split(' ')[0])) return false;
+            if (preferFemale) {
+                return v.name.toLowerCase().includes('female') ||
+                    ['Samantha','Karen','Moira','Fiona','Victoria','Google UK English Female'].some(n => v.name.includes(n));
+            }
+            return true;
+        });
+        if (match) return match;
+    }
+    return preferFemale && voices.length > 1 ? voices[1] : voices[0];
+}
+
+function getVoice(speakerId) {
+    const voices = getEnglishVoices();
+    if (voices.length === 0) return null;
+    const effectiveId = speakerId === 'C' ? 'A' : speakerId;
+    const savedName = effectiveId === 'B' ? state.voiceNameB : state.voiceNameA;
+    if (savedName) {
+        const found = voices.find(v => v.name === savedName);
+        if (found) return found;
+    }
+    return getBestVoice(effectiveId === 'B');
+}
+
+function initDefaultVoices() {
+    if (!state.voiceNameA) {
+        const v = getBestVoice(false);
+        if (v) { state.voiceNameA = v.name; localStorage.setItem('voiceNameA', v.name); }
+    }
+    if (!state.voiceNameB) {
+        const v = getBestVoice(true);
+        if (v) { state.voiceNameB = v.name; localStorage.setItem('voiceNameB', v.name); }
+    }
+}
+
 function ttsSpeak(episode) {
     speechSynthesis.cancel();
     ttsSegments = episode.segments;
     ttsIndex = 0;
+    state.isPlaying = true;
+    state.isPaused = false;
     ttsPlayNext();
 }
 
 function ttsPlayNext() {
+    updateProgressBar();
     if (ttsIndex >= ttsSegments.length) {
         state.isPlaying = false;
         state.isPaused = false;
         updatePlayerUI();
+        updateProgressBar();
         return;
     }
     const seg = ttsSegments[ttsIndex];
     const utter = new SpeechSynthesisUtterance(seg.text);
     utter.lang = 'en-US';
     utter.rate = state.ttsRate;
+    const voice = getVoice(seg.speaker);
+    if (voice) utter.voice = voice;
 
-    const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-    if (voices.length > 0) {
-        // Speaker B gets second voice (usually female)
-        utter.voice = (seg.speaker === 'B' && voices.length > 1) ? voices[1] : voices[0];
-    }
+    // Highlight current segment
+    highlightSegment(ttsIndex);
 
     utter.onend = () => { ttsIndex++; ttsPlayNext(); };
     utter.onerror = () => { state.isPlaying = false; updatePlayerUI(); };
-
     speechSynthesis.speak(utter);
+}
+
+function highlightSegment(idx) {
+    document.querySelectorAll('.seg-card').forEach((el, i) => {
+        el.classList.toggle('playing', i === idx);
+    });
+}
+
+function updateProgressBar() {
+    const fill = document.getElementById('progressFill');
+    if (!fill) return;
+    const pct = ttsSegments.length > 0 ? (ttsIndex / ttsSegments.length) * 100 : 0;
+    fill.style.width = pct + '%';
 }
 
 function updatePlayerUI() {
     const btn = document.getElementById('playBtn');
-    if (!btn) return;
-    btn.textContent = state.isPlaying ? '⏸ 一時停止' : '▶ 再生';
+    if (btn) btn.innerHTML = state.isPlaying ? '⏸' : '▶';
+    const label = document.getElementById('playBtnLabel');
+    if (label) label.textContent = state.isPlaying ? '一時停止' : '再生';
 }
 
 // ===== CLAUDE API =====
-async function generateEpisode(categoryId) {
+async function generateEpisode(categoryId, customTopic = '', customFormat = '', options = {}) {
     const cat = CATEGORIES.find(c => c.id === categoryId);
+    let topicPrompt = cat.prompt;
+    if (categoryId === 'custom') {
+        const parts = [];
+        if (customFormat) parts.push(`Format: ${customFormat}`);
+        if (customTopic) parts.push(`Topic: ${customTopic}`);
+        topicPrompt = parts.join('. ');
+    } else {
+        if (options.format) topicPrompt += `. Format: ${options.format}`;
+        if (options.instructions) topicPrompt += `. Additional requirements: ${options.instructions}`;
+    }
+    const activeFormat = categoryId === 'custom' ? customFormat : (options.format || '');
+    const formatObj = CUSTOM_FORMATS.find(f => f.value === activeFormat);
+    const speakerCount = formatObj ? formatObj.speakers : 2;
 
     const systemPrompt = `You are an English learning content creator for a Japanese business professional.
 The learner is: Male, 34, Customer Success Manager at a SaaS company in Tokyo, targeting TOEIC 700-800 and job interviews at major Japanese companies.
 Learning style: Podcast-style listening during commute and bath time. 2-3 minutes per episode.
 Always return ONLY valid JSON. No markdown fences, no extra text.`;
 
-    const userPrompt = `Create a 2-3 minute Business English learning episode.
-Topic: ${cat.prompt}
+    const speakersJson = speakerCount === 1
+        ? '[{"id":"A","name":"Name (Role)","gender":"male"}]'
+        : speakerCount === 3
+        ? '[{"id":"A","name":"Name (Role)","gender":"male"},{"id":"B","name":"Name (Role)","gender":"female"},{"id":"C","name":"Name (Role)","gender":"male"}]'
+        : '[{"id":"A","name":"Name (Role)","gender":"male"},{"id":"B","name":"Name (Role)","gender":"female"}]';
+
+    const userPrompt = `Create a 2-3 minute English learning episode.
+Topic: ${topicPrompt}
 
 Return this exact JSON structure:
 {
   "title": "Specific, engaging episode title",
   "duration": "2 min",
-  "categoryLabel": "${cat.label}",
-  "speakers": [
-    {"id": "A", "name": "Name (Role)", "gender": "male"},
-    {"id": "B", "name": "Name (Role)", "gender": "female"}
-  ],
+  "categoryLabel": "${categoryId === 'custom' ? 'Custom' : cat.label}",
+  "speakers": ${speakersJson},
   "segments": [
     {
       "speaker": "A",
       "text": "Natural spoken English. 2-4 sentences per segment.",
+      "translation": "textの自然な日本語訳",
       "highlights": [
         {
-          "phrase": "exact phrase from the text above (word-for-word match)",
+          "phrase": "exact phrase from the text above",
           "explanation": "日本語で意味・ニュアンス・使い方を2〜3文で説明"
         }
       ]
@@ -185,10 +366,11 @@ Return this exact JSON structure:
 }
 
 Rules:
-- 4-6 segments total, realistic dialogue between two professionals
-- 2-3 highlights per segment, choose practical business phrases
+- 4-6 segments total, realistic dialogue
+- 2-3 highlights per segment with practical phrases
 - Phrases must be verbatim substrings of the segment text
-- Japanese explanations should be practical and include usage notes`;
+- Japanese explanations should be practical with usage notes
+- translation must be natural Japanese`;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -200,7 +382,7 @@ Rules:
         },
         body: JSON.stringify({
             model: 'claude-sonnet-4-6',
-            max_tokens: 2048,
+            max_tokens: 4096,
             system: systemPrompt,
             messages: [{ role: 'user', content: userPrompt }]
         })
@@ -213,153 +395,262 @@ Rules:
 
     const data = await res.json();
     const raw = data.content[0].text;
-
     const match = raw.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('レスポンスのパースに失敗しました');
+    if (!match) throw new Error('レスポンスのパースに失敗しました。もう一度お試しください。');
 
-    const episode = JSON.parse(match[0]);
+    let episode;
+    try { episode = JSON.parse(match[0]); }
+    catch (e) { throw new Error('JSONのパースに失敗しました。もう一度お試しください。'); }
     episode.generatedAt = new Date().toISOString();
     return episode;
 }
 
 // ===== HELPERS =====
-function getAllPhrases(episode) {
+function getAllPhrases(ep) {
     const out = [];
-    episode.segments.forEach(seg => {
-        (seg.highlights || []).forEach(h => out.push(h));
-    });
+    ep.segments.forEach(seg => (seg.highlights || []).forEach(h => out.push(h)));
     return out;
 }
 
 function escapeHtml(str) {
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function buildHighlightedText(text, highlights, segIndex) {
     if (!highlights || highlights.length === 0) return escapeHtml(text);
-
-    // Sort highlights by position in text (longest first to avoid partial overlaps)
     const sorted = [...highlights]
         .map((h, i) => ({ ...h, idx: i, pos: text.indexOf(h.phrase) }))
         .filter(h => h.pos !== -1)
         .sort((a, b) => a.pos - b.pos);
-
-    let result = '';
-    let cursor = 0;
-
+    let result = '', cursor = 0;
     sorted.forEach(h => {
-        if (h.pos < cursor) return; // skip overlapping
+        if (h.pos < cursor) return;
         result += escapeHtml(text.slice(cursor, h.pos));
-        result += `<span
-            class="highlight-phrase"
-            data-seg="${segIndex}"
-            data-hi="${h.idx}"
-            data-phrase="${encodeURIComponent(h.phrase)}"
-            data-explanation="${encodeURIComponent(h.explanation)}"
-        >${escapeHtml(h.phrase)}</span>`;
+        result += `<span class="highlight-phrase" data-seg="${segIndex}" data-hi="${h.idx}" data-phrase="${encodeURIComponent(h.phrase)}" data-explanation="${encodeURIComponent(h.explanation)}">${escapeHtml(h.phrase)}</span>`;
         cursor = h.pos + h.phrase.length;
     });
-
     result += escapeHtml(text.slice(cursor));
     return result;
+}
+
+function getCategoryOpts() {
+    return state.categoryOptions[state.category] || { format: '', instructions: '' };
+}
+
+function saveCategoryOpts(opts) {
+    state.categoryOptions[state.category] = opts;
+    localStorage.setItem('categoryOptions', JSON.stringify(state.categoryOptions));
+}
+
+function getLastEpisode() {
+    const keys = Object.keys(state.episodes);
+    if (keys.length === 0) return null;
+    return keys.reduce((best, k) => {
+        const ep = state.episodes[k];
+        if (!best) return ep;
+        return new Date(ep.generatedAt) > new Date(best.generatedAt) ? ep : best;
+    }, null);
+}
+
+function formatDate(isoStr) {
+    if (!isoStr) return '';
+    const d = new Date(isoStr);
+    return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
 // ===== RENDER =====
 function render() {
     const app = document.getElementById('app');
     if (state.view === 'setup')   app.innerHTML = renderSetup();
-    if (state.view === 'home')    app.innerHTML = renderHome();
-    if (state.view === 'episode') app.innerHTML = renderEpisode();
+    else if (state.view === 'main')    app.innerHTML = renderMain();
+    else if (state.view === 'episode') app.innerHTML = renderEpisode();
     attachListeners();
 }
 
 // --- Setup ---
 function renderSetup() {
     return `
-    <div class="min-h-screen flex items-center justify-center px-6 bg-gradient-to-b from-blue-50 to-white">
-      <div class="w-full max-w-sm">
-        <div class="text-center mb-8">
-          <div class="text-6xl mb-4">🎧</div>
-          <h1 class="text-2xl font-bold text-gray-900">EigoDaily</h1>
-          <p class="text-gray-500 mt-2 text-sm">ビジネス英語を、毎日2分で。</p>
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#eef2ff 0%,#f8fafc 60%);">
+      <div style="width:100%;max-width:360px;">
+        <div style="text-align:center;margin-bottom:32px;">
+          <div style="width:72px;height:72px;background:var(--primary);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;">🎧</div>
+          <h1 style="font-size:26px;font-weight:800;color:#111827;margin:0;">EigoDaily</h1>
+          <p style="color:#6b7280;margin:6px 0 0;font-size:14px;">英語を毎日2分で。通勤・お風呂で聴くだけ。</p>
         </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Anthropic API Key</label>
-          <input
-            id="apiKeyInput"
-            type="password"
-            placeholder="sk-ant-..."
+        <div class="card" style="padding:24px;">
+          <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:8px;">Anthropic API Key</label>
+          <input id="apiKeyInput" type="password" placeholder="sk-ant-..."
             value="${escapeHtml(state.apiKey)}"
-            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-          <p class="text-xs text-gray-400 mt-2">キーはこの端末のみに保存。外部送信はしません。</p>
-          <button id="saveKeyBtn" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl font-semibold text-sm active:bg-blue-700 transition-colors">
+            style="width:100%;border:1.5px solid #d1d5db;border-radius:12px;padding:12px 14px;font-size:14px;outline:none;color:#111827;">
+          <p style="font-size:12px;color:#9ca3af;margin:6px 0 0;">キーはこの端末にのみ保存されます</p>
+          <button id="saveKeyBtn" class="btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;">
             はじめる →
           </button>
         </div>
-        <p class="text-center text-xs text-gray-400 mt-4">
-          APIキーは <span class="text-blue-500">console.anthropic.com</span> で取得できます
+        <p style="text-align:center;font-size:12px;color:#9ca3af;margin-top:16px;">
+          APIキーは <span style="color:var(--primary);">console.anthropic.com</span> で取得
         </p>
       </div>
     </div>`;
 }
 
-// --- Home ---
-function renderHome() {
-    const cached = state.episodes[state.category];
+// --- Main (with bottom nav) ---
+function renderMain() {
+    let content = '';
+    if (state.bottomTab === 'today')    content = renderTodayTab();
+    else if (state.bottomTab === 'learn')    content = renderLearnTab();
+    else if (state.bottomTab === 'phrases')  content = renderPhrasesTab();
+    else if (state.bottomTab === 'settings') content = renderSettingsTab();
+
     return `
-    <div class="min-h-screen bg-gray-50">
+    <div style="min-height:100vh;background:#f8fafc;">
+      <div style="padding-bottom:var(--nav-h);">${content}</div>
+      ${renderBottomNav()}
+    </div>`;
+}
+
+function renderBottomNav() {
+    const tabs = [
+        { id: 'today',    icon: '🏠', label: '今日' },
+        { id: 'learn',    icon: '📚', label: '学ぶ' },
+        { id: 'phrases',  icon: '⭐', label: 'フレーズ帳' },
+        { id: 'settings', icon: '⚙️', label: '設定' },
+    ];
+    return `
+    <div class="bottom-nav">
+      ${tabs.map(t => {
+        const active = state.bottomTab === t.id;
+        const badge = t.id === 'phrases' && state.savedPhrases.length > 0
+            ? `<span style="position:absolute;top:4px;right:calc(50% - 18px);background:var(--red);color:white;font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px;">${state.savedPhrases.length}</span>`
+            : '';
+        return `
+        <button class="nav-btn bottom-tab-btn" data-tab="${t.id}" style="position:relative;">
+          ${badge}
+          <span class="nav-icon">${t.icon}</span>
+          <span class="nav-label" style="color:${active ? 'var(--primary)' : '#9ca3af'};">${t.label}</span>
+          ${active ? `<span style="position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--primary);border-radius:99px;"></span>` : ''}
+        </button>`;
+      }).join('')}
+    </div>`;
+}
+
+// --- Today Tab ---
+function renderTodayTab() {
+    const today = new Date();
+    const dateStr = `${today.getMonth() + 1}月${today.getDate()}日`;
+    const hour = today.getHours();
+    const greeting = hour < 12 ? 'おはようございます' : hour < 18 ? 'こんにちは' : 'こんばんは';
+    const lastEp = getLastEpisode();
+    const episodeCount = Object.keys(state.episodes).length;
+
+    return `
+    <div class="fade-in">
       <!-- Header -->
-      <div class="bg-white border-b border-gray-100 px-4 pt-12 pb-4 flex items-center justify-between sticky top-0 z-10">
-        <div>
-          <h1 class="text-xl font-bold text-gray-900">🎧 EigoDaily</h1>
-          <p class="text-xs text-gray-400">ビジネス英語、毎日2分</p>
-        </div>
-        <button id="settingsBtn" class="text-2xl">⚙️</button>
+      <div style="background:linear-gradient(135deg,var(--primary),#6d28d9);padding:48px 20px 24px;">
+        <p style="color:#c7d2fe;font-size:13px;font-weight:600;">${dateStr} ${greeting}</p>
+        <h1 style="color:white;font-size:22px;font-weight:800;margin:4px 0 0;">EigoDaily</h1>
+        ${episodeCount > 0 ? `<p style="color:#c7d2fe;font-size:12px;margin-top:6px;">📖 これまでに ${episodeCount} エピソード学習</p>` : ''}
       </div>
 
-      <!-- Category Tabs -->
-      <div class="px-4 pt-4">
-        <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-          ${CATEGORIES.map(c => `
-            <button
-              class="category-tab flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all"
+      <div style="padding:0 16px 20px;margin-top:-12px;">
+
+        <!-- Featured episode or CTA -->
+        ${lastEp ? `
+        <div class="card fade-in" style="padding:0;overflow:hidden;margin-bottom:20px;">
+          <div style="background:linear-gradient(135deg,#1e1b4b,var(--primary));padding:18px 20px 14px;">
+            <p style="color:#a5b4fc;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">最近のエピソード</p>
+            <h2 style="color:white;font-size:16px;font-weight:800;margin:6px 0 4px;line-height:1.3;">${escapeHtml(lastEp.title)}</h2>
+            <p style="color:#a5b4fc;font-size:12px;">⏱ ${lastEp.duration || '2 min'} &nbsp;•&nbsp; ${escapeHtml(lastEp.categoryLabel || '')}</p>
+          </div>
+          <div style="padding:14px 20px;">
+            <p style="color:#6b7280;font-size:13px;line-height:1.6;" class="line-clamp-2">${escapeHtml(lastEp.segments[0]?.text || '')}</p>
+            <button id="continueEpisodeBtn" class="btn-primary" style="width:100%;margin-top:12px;padding:12px;font-size:14px;">
+              続きから学ぶ →
+            </button>
+          </div>
+        </div>` : `
+        <div class="card fade-in" style="padding:24px;text-align:center;margin-bottom:20px;">
+          <div style="font-size:48px;margin-bottom:8px;">✨</div>
+          <h2 style="font-size:17px;font-weight:800;color:#111827;margin:0 0 6px;">最初のエピソードを生成</h2>
+          <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">カテゴリを選んでAIに英語スクリプトを作ってもらいましょう</p>
+          <button id="goLearnBtn" class="btn-primary" style="padding:12px 28px;font-size:14px;">
+            学ぶ →
+          </button>
+        </div>`}
+
+        <!-- Categories grid -->
+        <p class="section-heading">カテゴリ</p>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+          ${CATEGORIES.map(c => {
+            const hasEp = !!state.episodes[c.id];
+            return `
+            <button class="cat-card today-cat-btn ${state.category === c.id ? 'active' : ''}" data-cat="${c.id}" style="position:relative;">
+              ${hasEp ? `<span style="position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--green);border-radius:50%;"></span>` : ''}
+              <span class="cat-emoji">${c.emoji}</span>
+              <span class="cat-label">${c.label}</span>
+            </button>`;
+          }).join('')}
+        </div>
+        <p style="font-size:11px;color:#9ca3af;margin-top:8px;">● 生成済みのカテゴリ</p>
+      </div>
+    </div>`;
+}
+
+// --- Learn Tab ---
+function renderLearnTab() {
+    const cached = state.episodes[state.category];
+    const opts = getCategoryOpts();
+    const hasOpts = !!(opts.format || opts.instructions?.trim());
+
+    return `
+    <div class="fade-in">
+      <!-- Header -->
+      <div style="background:white;border-bottom:1px solid #e5e7eb;padding:48px 16px 12px;position:sticky;top:0;z-index:10;">
+        <h1 style="font-size:18px;font-weight:800;color:#111827;margin:0 0 10px;">📚 学ぶ</h1>
+        <!-- Category scroll -->
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;" class="scrollbar-hide">
+          ${CATEGORIES.map(c => {
+            const active = state.category === c.id;
+            return `<button class="category-tab flex-shrink-0"
               data-category="${c.id}"
-              style="${state.category === c.id
-                ? 'background:#2563eb;color:white;'
-                : 'background:white;color:#374151;border:1px solid #e5e7eb;'}"
-            >${c.emoji} ${c.label}</button>
-          `).join('')}
+              style="padding:6px 14px;border-radius:99px;font-size:13px;font-weight:700;white-space:nowrap;border:none;cursor:pointer;
+                     background:${active ? 'var(--primary)' : '#f3f4f6'};color:${active ? 'white' : '#374151'};">
+              ${c.emoji} ${c.label}
+            </button>`;
+          }).join('')}
         </div>
       </div>
 
-      <!-- Content -->
-      <div class="px-4 pt-4 pb-8">
-        ${cached ? renderEpisodeCard(cached) : renderGenerateCard()}
-        ${cached ? `
-          <button id="regenerateBtn" class="w-full mt-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-500 font-medium active:bg-gray-50">
-            🔄 新しいエピソードを生成する
-          </button>` : ''}
+      <div style="padding:16px 16px 24px;">
+        ${state.category === 'custom' ? renderCustomForm() : (cached ? renderEpisodeCard(cached) : renderGenerateCard())}
+
+        ${state.category !== 'custom' ? renderOptionsPanel() : ''}
+
+        ${state.category !== 'custom' && cached ? `
+        <button id="regenerateBtn" class="btn-ghost" style="width:100%;margin-top:10px;padding:12px;font-size:13px;">
+          🔄 新しいエピソードを生成する
+        </button>` : ''}
       </div>
     </div>`;
 }
 
 function renderEpisodeCard(ep) {
     const isDialog = ep.speakers && ep.speakers.length > 1;
+    const dateLabel = ep.generatedAt ? formatDate(ep.generatedAt) : '';
     return `
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-5 py-4" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
-        <p class="text-blue-200 text-xs font-semibold uppercase tracking-widest">${ep.categoryLabel}</p>
-        <h2 class="text-white font-bold text-lg mt-1 leading-snug">${escapeHtml(ep.title)}</h2>
-        <p class="text-blue-200 text-xs mt-2">⏱ ${ep.duration} &nbsp;•&nbsp; ${isDialog ? '対話形式' : 'モノローグ'}</p>
+    <div class="card" style="overflow:hidden;">
+      <div style="background:linear-gradient(135deg,var(--primary),#6d28d9);padding:18px 20px 14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <p style="color:#a5b4fc;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin:0;">${escapeHtml(ep.categoryLabel)}</p>
+          ${dateLabel ? `<span style="color:#a5b4fc;font-size:11px;">${dateLabel}</span>` : ''}
+        </div>
+        <h2 style="color:white;font-size:17px;font-weight:800;margin:6px 0 6px;line-height:1.3;">${escapeHtml(ep.title)}</h2>
+        <p style="color:#a5b4fc;font-size:12px;margin:0;">⏱ ${ep.duration || '2 min'} &nbsp;•&nbsp; ${isDialog ? `${ep.speakers.length}名の対話` : 'モノローグ'}</p>
       </div>
-      <div class="p-5">
-        <p class="text-gray-500 text-sm leading-relaxed line-clamp-3">${escapeHtml(ep.segments[0]?.text || '')}</p>
-        <button id="openEpisodeBtn" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl font-semibold text-sm active:bg-blue-700 transition-colors">
+      <div style="padding:16px 20px;">
+        <p style="color:#6b7280;font-size:13px;line-height:1.6;" class="line-clamp-3">${escapeHtml(ep.segments[0]?.text || '')}</p>
+        <button id="openEpisodeBtn" class="btn-primary" style="width:100%;margin-top:14px;padding:13px;font-size:15px;">
           学習を始める →
         </button>
       </div>
@@ -368,126 +659,339 @@ function renderEpisodeCard(ep) {
 
 function renderGenerateCard() {
     return `
-    <div id="generateCard" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-      <div class="text-5xl mb-3">✨</div>
-      <h2 class="font-bold text-gray-900 text-lg">今日のエピソードを生成</h2>
-      <p class="text-gray-500 text-sm mt-2 mb-6">AIが2〜3分のビジネス英語スクリプトを作成します</p>
-      <button id="generateBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold text-sm active:bg-blue-700">
+    <div id="generateCard" class="card" style="padding:32px 20px;text-align:center;">
+      <div style="font-size:48px;margin-bottom:10px;">✨</div>
+      <h2 style="font-size:17px;font-weight:800;color:#111827;margin:0 0 8px;">エピソードを生成</h2>
+      <p style="font-size:13px;color:#6b7280;margin:0 0 20px;">AIが2〜3分のスクリプトを作成します</p>
+      <button id="generateBtn" class="btn-primary" style="width:100%;padding:14px;font-size:15px;">
         生成する
       </button>
     </div>`;
 }
 
-// --- Episode ---
-function renderEpisode() {
-    const ep = state.currentEpisode;
-    const isDialog = ep.speakers && ep.speakers.length > 1;
-    const allPhrases = getAllPhrases(ep);
+function renderOptionsPanel() {
+    const opts = getCategoryOpts();
+    const hasOpts = !!(opts.format || (opts.instructions && opts.instructions.trim()));
+    const open = state.optionsPanelOpen;
 
     return `
-    <div class="min-h-screen bg-gray-50">
-      <!-- Header -->
-      <div class="bg-white border-b border-gray-100 px-4 pt-12 pb-4 flex items-center gap-3 sticky top-0 z-10">
-        <button id="backBtn" class="text-blue-600 font-semibold text-sm whitespace-nowrap">← 戻る</button>
-        <div class="flex-1 min-w-0">
-          <p class="text-xs text-gray-400 truncate">${escapeHtml(ep.categoryLabel)}</p>
-          <h1 class="font-bold text-gray-900 text-sm truncate leading-tight">${escapeHtml(ep.title)}</h1>
+    <div style="margin-top:12px;border-radius:14px;border:1.5px solid ${hasOpts ? '#a78bfa' : '#e5e7eb'};background:${hasOpts ? '#faf5ff' : 'white'};overflow:hidden;">
+      <button id="optionsToggleBtn" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:none;border:none;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:13px;font-weight:700;color:${hasOpts ? '#7c3aed' : '#6b7280'};">🎛 オプション指定</span>
+          ${hasOpts ? `<span style="font-size:10px;font-weight:700;background:#7c3aed;color:white;padding:1px 8px;border-radius:99px;">設定中</span>` : `<span style="font-size:11px;color:#9ca3af;">任意</span>`}
         </div>
-        <span class="text-xs text-gray-400 whitespace-nowrap">⏱ ${ep.duration}</span>
-      </div>
-
-      <!-- Script -->
-      <div class="px-4 pt-4 pb-40">
-        ${isDialog && ep.speakers ? `
-          <div class="flex gap-3 mb-4">
-            ${ep.speakers.map((s, i) => `
-              <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                <span class="w-2.5 h-2.5 rounded-full inline-block" style="background:${i === 0 ? '#3b82f6' : '#22c55e'}"></span>
-                ${escapeHtml(s.name)}
-              </div>
-            `).join('')}
-          </div>` : ''}
-
-        ${ep.segments.map((seg, si) => {
-            const speakerIndex = ep.speakers ? ep.speakers.findIndex(s => s.id === seg.speaker) : 0;
-            const borderColor = speakerIndex === 0 ? '#3b82f6' : '#22c55e';
-            const highlightedText = buildHighlightedText(seg.text, seg.highlights, si);
-            const speaker = ep.speakers ? ep.speakers.find(s => s.id === seg.speaker) : null;
-
-            return `
-            <div class="mb-4">
-              ${isDialog && speaker ? `<p class="text-xs font-bold text-gray-400 uppercase mb-1.5 pl-4">${escapeHtml(speaker.name)}</p>` : ''}
-              <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 ${isDialog ? 'border-l-4' : ''}"
-                   style="${isDialog ? `border-left-color:${borderColor};border-left-width:4px;` : ''}">
-                <p class="text-gray-900 text-base leading-relaxed">${highlightedText}</p>
-              </div>
-            </div>`;
-        }).join('')}
-
-        <!-- Key Phrases Summary -->
-        ${allPhrases.length > 0 ? `
-        <div class="mt-6 bg-amber-50 rounded-2xl p-4 border border-amber-100">
-          <h3 class="font-bold text-gray-800 text-sm mb-4">📌 今日のキーフレーズ (${allPhrases.length})</h3>
-          ${allPhrases.map(p => `
-            <div class="mb-4 last:mb-0 pb-4 last:pb-0 border-b border-amber-100 last:border-0">
-              <p class="font-semibold text-gray-900 text-sm">${escapeHtml(p.phrase)}</p>
-              <p class="text-gray-600 text-xs mt-1 leading-relaxed">${escapeHtml(p.explanation)}</p>
-            </div>
-          `).join('')}
-        </div>` : ''}
-      </div>
-
-      <!-- Player -->
-      <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-4 shadow-2xl">
-        <!-- Speed -->
-        <div class="flex justify-center gap-2 mb-3">
-          ${[0.75, 1.0, 1.25].map(r => `
-            <button
-              class="speed-btn px-5 py-1.5 rounded-full text-sm font-semibold transition-all"
-              data-rate="${r}"
-              style="${state.ttsRate === r
-                ? 'background:#2563eb;color:white;'
-                : 'background:#f3f4f6;color:#374151;'}"
-            >${r}x</button>
-          `).join('')}
+        <span style="color:#9ca3af;font-size:12px;">${open ? '▲' : '▼'}</span>
+      </button>
+      <div id="optionsPanelBody" style="display:${open ? 'block' : 'none'};padding:0 16px 16px;">
+        <p style="font-size:12px;color:#6b7280;margin:0 0 10px;">形式や含めたいフレーズを指定できます。空欄なら通常生成。</p>
+        <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 6px;">形式（任意）</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+          ${CUSTOM_FORMATS.map((f, i) => {
+            const active = opts.format === f.value;
+            return `<button class="opt-format-btn" data-index="${i}"
+              style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px;border:1.5px solid ${active ? '#7c3aed' : '#e5e7eb'};background:${active ? '#7c3aed' : '#f9fafb'};color:${active ? 'white' : '#374151'};cursor:pointer;">
+              ${f.label}
+            </button>`;
+          }).join('')}
         </div>
-        <!-- Controls -->
-        <div class="flex items-center gap-3">
-          <button id="rewindBtn" class="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 text-lg active:bg-gray-200">⏮</button>
-          <button id="playBtn" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold text-base active:bg-blue-700 transition-colors">
-            ${state.isPlaying ? '⏸ 一時停止' : '▶ 再生'}
-          </button>
-          <button id="stopBtn" class="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 text-lg active:bg-gray-200">⏹</button>
-        </div>
+        <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 6px;">追加指示（任意）</p>
+        <textarea id="optInstructionsArea" rows="2"
+          placeholder="例：空港での乗り継ぎシーン&#10;例：「take it to the next level」を含めて"
+          style="width:100%;border:1.5px solid #d1d5db;border-radius:10px;padding:8px 12px;font-size:13px;resize:none;outline:none;color:#111827;background:white;"
+        >${escapeHtml(opts.instructions || '')}</textarea>
+        ${hasOpts ? `<button id="clearOptsBtn" style="margin-top:8px;font-size:12px;color:var(--red);background:none;border:none;cursor:pointer;padding:0;">🗑 オプションをクリア</button>` : ''}
       </div>
     </div>`;
 }
 
-// ===== LOADING STATE =====
+function renderCustomForm() {
+    const canGenerate = state.customFormat || state.customTopic.trim();
+    return `
+    <div id="customFormCard" class="card" style="overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9);padding:18px 20px 14px;">
+        <p style="color:#c4b5fd;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin:0;">✏️ Custom</p>
+        <h2 style="color:white;font-size:17px;font-weight:800;margin:6px 0 4px;">形式とテーマを自由に設定</h2>
+        <p style="color:#c4b5fd;font-size:12px;margin:0;">どちらか一方だけでも生成できます</p>
+      </div>
+      <div style="padding:16px 20px;">
+        <p style="font-size:12px;font-weight:700;color:#6b7280;margin:0 0 4px;">形式を選ぶ</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+          ${CUSTOM_FORMATS.map((f, i) => {
+            const active = state.customFormat === f.value;
+            return `<button class="custom-format-btn" data-index="${i}"
+              style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px;border:1.5px solid ${active ? '#7c3aed' : '#e5e7eb'};background:${active ? '#7c3aed' : '#f9fafb'};color:${active ? 'white' : '#374151'};cursor:pointer;">
+              ${f.label}
+            </button>`;
+          }).join('')}
+        </div>
+        <p style="font-size:12px;font-weight:700;color:#6b7280;margin:0 0 4px;">テーマ・詳細（自由入力）</p>
+        <textarea id="customTopicArea" rows="3"
+          placeholder="例：Hondaの最終面接でCSの経験を話したい&#10;例：パリ旅行でホテルにチェックインする場面&#10;例：映画 The Office のような職場のユーモア"
+          style="width:100%;border:1.5px solid #d1d5db;border-radius:12px;padding:10px 12px;font-size:13px;resize:none;outline:none;color:#111827;background:white;"
+        >${escapeHtml(state.customTopic)}</textarea>
+        <button id="customGenerateBtn" style="width:100%;margin-top:12px;padding:13px;border-radius:14px;font-size:15px;font-weight:700;border:none;cursor:pointer;color:white;background:${canGenerate ? '#7c3aed' : '#d1d5db'};" ${canGenerate ? '' : 'disabled'}>
+          ✨ 生成する
+        </button>
+      </div>
+    </div>`;
+}
+
+// --- Phrases Tab ---
+function renderPhrasesTab() {
+    const phrases = state.savedPhrases;
+    return `
+    <div class="fade-in">
+      <div style="background:white;border-bottom:1px solid #e5e7eb;padding:48px 16px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
+        <h1 style="font-size:18px;font-weight:800;color:#111827;margin:0;">⭐ フレーズ帳</h1>
+        ${phrases.length > 0 ? `
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:13px;font-weight:700;color:var(--primary);">${phrases.length}件</span>
+          <button id="clearPhrasesBtn" style="font-size:12px;color:var(--red);background:none;border:none;cursor:pointer;">全削除</button>
+        </div>` : ''}
+      </div>
+      <div style="padding:16px;">
+        ${phrases.length === 0 ? `
+        <div style="text-align:center;padding:60px 20px;">
+          <div style="font-size:48px;margin-bottom:12px;">☆</div>
+          <p style="font-size:16px;font-weight:700;color:#374151;margin:0 0 6px;">まだフレーズがありません</p>
+          <p style="font-size:13px;color:#9ca3af;margin:0;">エピソードのキーフレーズ横の ☆ を押すと保存できます</p>
+        </div>` :
+        phrases.map((p, i) => `
+        <div class="card" style="padding:14px 16px;margin-bottom:10px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:15px;font-weight:800;color:#111827;margin:0 0 4px;">${escapeHtml(p.phrase)}</p>
+              <p style="font-size:13px;color:#4b5563;margin:0 0 6px;line-height:1.6;">${escapeHtml(p.explanation)}</p>
+              <p style="font-size:11px;color:#9ca3af;margin:0;">📖 ${escapeHtml(p.episodeTitle)}</p>
+            </div>
+            <button class="delete-phrase-btn" data-index="${i}" style="background:none;border:none;cursor:pointer;color:#d1d5db;font-size:18px;padding:0;flex-shrink:0;">✕</button>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// --- Settings Tab ---
+function renderSettingsTab() {
+    const voices = getEnglishVoices();
+    const voiceOptions = (selectedName) => voices.map(v =>
+        `<option value="${escapeHtml(v.name)}" ${selectedName === v.name ? 'selected' : ''}>${escapeHtml(v.name)}</option>`
+    ).join('');
+
+    const voiceRow = (label, badge, color, selectId, previewBtnId, selectedName) => `
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-size:13px;font-weight:700;color:#374151;">${label}</span>
+        <span style="font-size:11px;font-weight:700;color:white;background:${color};padding:1px 8px;border-radius:99px;">${badge}</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <select id="${selectId}" style="flex:1;border:1.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;background:white;outline:none;min-width:0;">
+          ${voices.length > 0 ? voiceOptions(selectedName) : '<option>（英語音声なし）</option>'}
+        </select>
+        <button id="${previewBtnId}" style="flex-shrink:0;background:var(--primary);color:white;border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;">
+          ▶ 試聴
+        </button>
+      </div>
+    </div>`;
+
+    const epCount = Object.keys(state.episodes).length;
+
+    return `
+    <div class="fade-in">
+      <div style="background:white;border-bottom:1px solid #e5e7eb;padding:48px 16px 14px;position:sticky;top:0;z-index:10;">
+        <h1 style="font-size:18px;font-weight:800;color:#111827;margin:0;">⚙️ 設定</h1>
+      </div>
+      <div style="padding:16px;">
+
+        <!-- API Key -->
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <p style="font-size:13px;font-weight:700;color:#374151;margin:0 0 4px;">🔑 Anthropic API Key</p>
+          <p style="font-size:12px;color:#9ca3af;margin:0 0 10px;">キーはこの端末にのみ保存されます</p>
+          <input id="settingsApiKey" type="password" value="${escapeHtml(state.apiKey)}"
+            style="width:100%;border:1.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:14px;outline:none;color:#111827;background:white;">
+          <button id="saveApiKeyBtn" class="btn-primary" style="width:100%;margin-top:10px;padding:11px;font-size:14px;">保存する</button>
+        </div>
+
+        <!-- Voice -->
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <p style="font-size:13px;font-weight:700;color:#374151;margin:0 0 4px;">🎙 音声設定</p>
+          <p style="font-size:12px;color:#9ca3af;margin:0 0 14px;">音声を選んで「▶ 試聴」で確認できます</p>
+          ${voiceRow('Speaker A', 'A', 'var(--primary)', 'voiceSelectA', 'previewBtnA', state.voiceNameA)}
+          ${voiceRow('Speaker B', 'B', 'var(--green)', 'voiceSelectB', 'previewBtnB', state.voiceNameB)}
+          ${voices.length === 0 ? `
+          <div style="font-size:12px;color:#dc2626;background:#fef2f2;padding:12px;border-radius:10px;line-height:1.6;">
+            ⚠️ 英語音声が見つかりません。<br>
+            iPhone: 設定 → アクセシビリティ → 読み上げ → 声 → English<br>
+            Android: 設定 → ユーザー補助 → TTS → 言語追加
+          </div>` : ''}
+          <button id="saveVoicesBtn" class="btn-primary" style="width:100%;margin-top:6px;padding:11px;font-size:14px;">音声を保存する</button>
+        </div>
+
+        <!-- Playback speed -->
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <p style="font-size:13px;font-weight:700;color:#374151;margin:0 0 12px;">⏱ 再生速度</p>
+          <div style="display:flex;gap:8px;justify-content:center;">
+            ${[0.75, 1.0, 1.25, 1.5].map(r => `
+            <button class="speed-pill settings-speed-btn" data-rate="${r}"
+              style="background:${state.ttsRate === r ? 'var(--primary)' : '#f3f4f6'};color:${state.ttsRate === r ? 'white' : '#374151'};">
+              ${r}x
+            </button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Data -->
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <p style="font-size:13px;font-weight:700;color:#374151;margin:0 0 12px;">📊 データ</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:13px;color:#6b7280;">生成済みエピソード</span>
+            <span style="font-size:13px;font-weight:700;color:#111827;">${epCount}件</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <span style="font-size:13px;color:#6b7280;">保存フレーズ</span>
+            <span style="font-size:13px;font-weight:700;color:#111827;">${state.savedPhrases.length}件</span>
+          </div>
+          <button id="clearEpisodesBtn" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #fca5a5;background:white;color:var(--red);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">
+            🗑 エピソードキャッシュをクリア
+          </button>
+          <button id="clearAllDataBtn" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #fca5a5;background:white;color:var(--red);font-size:13px;font-weight:700;cursor:pointer;">
+            ⚠️ すべてのデータをリセット
+          </button>
+        </div>
+
+        <!-- Version -->
+        <p style="text-align:center;font-size:11px;color:#9ca3af;margin-top:16px;">EigoDaily v2.0</p>
+      </div>
+    </div>`;
+}
+
+// --- Episode View ---
+function renderEpisode() {
+    const ep = state.currentEpisode;
+    const isDialog = ep.speakers && ep.speakers.length > 1;
+    const allPhrases = getAllPhrases(ep);
+    const total = ep.segments.length;
+
+    return `
+    <div style="min-height:100vh;background:#f8fafc;">
+      <!-- Header -->
+      <div style="background:white;border-bottom:1px solid #e5e7eb;padding:48px 16px 12px;position:sticky;top:0;z-index:10;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button id="backBtn" style="background:none;border:none;cursor:pointer;font-size:14px;font-weight:700;color:var(--primary);white-space:nowrap;padding:0;">← 戻る</button>
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:11px;color:#9ca3af;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(ep.categoryLabel || '')}</p>
+            <p style="font-size:13px;font-weight:800;color:#111827;margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(ep.title)}</p>
+          </div>
+          <button id="translationToggleBtn" style="flex-shrink:0;font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;border:none;cursor:pointer;${state.showTranslations ? 'background:var(--primary);color:white;' : 'background:#f3f4f6;color:#374151;'}">
+            日本語
+          </button>
+        </div>
+        <!-- Progress bar -->
+        <div class="progress-bar-track" style="margin-top:10px;">
+          <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
+        </div>
+      </div>
+
+      <!-- Speakers legend -->
+      ${isDialog && ep.speakers ? `
+      <div style="padding:12px 16px 0;display:flex;gap:12px;flex-wrap:wrap;">
+        ${ep.speakers.map((s, i) => `
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:${SPEAKER_COLORS[i] || SPEAKER_COLORS[0]};display:inline-block;"></span>
+          <span style="font-size:12px;color:#6b7280;font-weight:600;">${escapeHtml(s.name)}</span>
+        </div>`).join('')}
+      </div>` : ''}
+
+      <!-- Segments -->
+      <div style="padding:12px 16px 200px;">
+        ${ep.segments.map((seg, si) => {
+          const speakerIndex = ep.speakers ? ep.speakers.findIndex(s => s.id === seg.speaker) : 0;
+          const borderColor = SPEAKER_COLORS[speakerIndex] || SPEAKER_COLORS[0];
+          const speaker = ep.speakers ? ep.speakers.find(s => s.id === seg.speaker) : null;
+          const hlText = buildHighlightedText(seg.text, seg.highlights, si);
+
+          return `
+          <div class="seg-card" style="${isDialog ? `border-left:3px solid ${borderColor};` : ''}">
+            ${isDialog && speaker ? `<p style="font-size:11px;font-weight:700;color:${borderColor};margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em;">${escapeHtml(speaker.name)}</p>` : ''}
+            <p style="font-size:15px;color:#111827;line-height:1.7;margin:0;">${hlText}</p>
+            ${seg.translation ? `
+            <p class="translation-text" style="display:${state.showTranslations ? 'block' : 'none'};font-size:13px;color:#6b7280;margin:8px 0 0;padding-top:8px;border-top:1px solid #f3f4f6;line-height:1.6;">
+              ${escapeHtml(seg.translation)}
+            </p>` : ''}
+          </div>`;
+        }).join('')}
+
+        <!-- Key Phrases -->
+        ${allPhrases.length > 0 ? `
+        <div style="background:#fffbeb;border-radius:16px;padding:16px;border:1px solid #fde68a;margin-top:8px;">
+          <h3 style="font-size:14px;font-weight:800;color:#92400e;margin:0 0 14px;">📌 キーフレーズ (${allPhrases.length})</h3>
+          ${allPhrases.map(p => {
+            const isSaved = state.savedPhrases.some(s => s.phrase === p.phrase);
+            return `
+            <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #fde68a;" class="last-phrase-no-border">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:14px;font-weight:800;color:#1c1917;margin:0 0 4px;">${escapeHtml(p.phrase)}</p>
+                  <p style="font-size:12px;color:#78716c;margin:0;line-height:1.6;">${escapeHtml(p.explanation)}</p>
+                </div>
+                <button class="save-phrase-btn" data-phrase="${encodeURIComponent(p.phrase)}" data-explanation="${encodeURIComponent(p.explanation)}" data-episode="${encodeURIComponent(ep.title)}"
+                  style="background:none;border:none;cursor:pointer;font-size:20px;padding:0;flex-shrink:0;line-height:1;">${isSaved ? '⭐' : '☆'}</button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>` : ''}
+      </div>
+
+      <!-- Player -->
+      <div style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;padding:12px 16px 24px;box-shadow:0 -4px 24px rgba(0,0,0,0.08);">
+        <!-- Speed row -->
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;">
+          ${[0.75, 1.0, 1.25].map(r => `
+          <button class="speed-pill speed-btn" data-rate="${r}"
+            style="background:${state.ttsRate === r ? 'var(--primary)' : '#f3f4f6'};color:${state.ttsRate === r ? 'white' : '#374151'};">
+            ${r}x
+          </button>`).join('')}
+        </div>
+        <!-- Controls row -->
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button id="rewindBtn" style="width:46px;height:46px;border-radius:50%;background:#f3f4f6;border:none;cursor:pointer;font-size:18px;flex-shrink:0;">⏮</button>
+          <button id="playBtn" style="flex:1;height:46px;border-radius:14px;background:var(--primary);color:white;border:none;cursor:pointer;font-size:20px;font-weight:700;">
+            ${state.isPlaying ? '⏸' : '▶'}
+          </button>
+          <button id="stopBtn" style="width:46px;height:46px;border-radius:50%;background:#f3f4f6;border:none;cursor:pointer;font-size:18px;flex-shrink:0;">⏹</button>
+        </div>
+        <p id="playBtnLabel" style="text-align:center;font-size:11px;color:#9ca3af;margin:6px 0 0;">${state.isPlaying ? '一時停止' : '再生'}</p>
+      </div>
+    </div>`;
+}
+
+// ===== LOADING / ERROR =====
 function showLoading(container) {
     container.innerHTML = `
-    <div class="p-10 text-center">
-      <div class="spinner mb-4"></div>
-      <p class="text-gray-600 font-medium">AIがスクリプトを生成中...</p>
-      <p class="text-gray-400 text-sm mt-1">最大10秒ほどかかります</p>
+    <div style="padding:48px 20px;text-align:center;">
+      <div class="spinner" style="margin-bottom:16px;"></div>
+      <p style="font-size:15px;font-weight:700;color:#374151;">AIがスクリプトを生成中...</p>
+      <p style="font-size:13px;color:#9ca3af;margin-top:4px;">最大10秒ほどかかります</p>
     </div>`;
 }
 
 function showError(container, message) {
     container.innerHTML = `
-    <div class="p-8 text-center">
-      <div class="text-4xl mb-3">⚠️</div>
-      <p class="text-gray-800 font-semibold">生成に失敗しました</p>
-      <p class="text-gray-500 text-sm mt-1 mb-4">${escapeHtml(message)}</p>
-      <button onclick="render()" class="px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium">
+    <div style="padding:36px 20px;text-align:center;">
+      <div style="font-size:40px;margin-bottom:10px;">⚠️</div>
+      <p style="font-size:15px;font-weight:700;color:#111827;margin:0 0 6px;">生成に失敗しました</p>
+      <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">${escapeHtml(message)}</p>
+      <button onclick="render()" style="padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">
         やり直す
       </button>
     </div>`;
 }
 
 // ===== EVENT LISTENERS =====
+const PREVIEW_TEXT = "Hello! I'm your English learning assistant. Let's practice some business English together.";
+
 function attachListeners() {
-    // Setup: save API key
+    // Setup: save key
     const saveKeyBtn = document.getElementById('saveKeyBtn');
     if (saveKeyBtn) {
         saveKeyBtn.addEventListener('click', () => {
@@ -495,7 +999,7 @@ function attachListeners() {
             if (!key) { alert('APIキーを入力してください'); return; }
             state.apiKey = key;
             localStorage.setItem('apiKey', key);
-            state.view = 'home';
+            state.view = 'main';
             render();
         });
         document.getElementById('apiKeyInput').addEventListener('keydown', e => {
@@ -503,35 +1007,63 @@ function attachListeners() {
         });
     }
 
-    // Settings: change API key
-    const settingsBtn = document.getElementById('settingsBtn');
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', () => {
-            const newKey = prompt('Anthropic APIキー:', state.apiKey);
-            if (newKey !== null && newKey.trim()) {
-                state.apiKey = newKey.trim();
-                localStorage.setItem('apiKey', state.apiKey);
-                alert('APIキーを更新しました');
-            }
-        });
-    }
-
-    // Category tabs
-    document.querySelectorAll('.category-tab').forEach(btn => {
+    // Bottom nav tabs
+    document.querySelectorAll('.bottom-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            state.category = btn.dataset.category;
+            state.bottomTab = btn.dataset.tab;
             render();
         });
     });
 
-    // Generate
+    // Today tab: continue episode
+    const continueBtn = document.getElementById('continueEpisodeBtn');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+            const lastEp = getLastEpisode();
+            if (lastEp) {
+                state.currentEpisode = lastEp;
+                state.view = 'episode';
+                render();
+            }
+        });
+    }
+
+    // Today tab: go to learn
+    const goLearnBtn = document.getElementById('goLearnBtn');
+    if (goLearnBtn) {
+        goLearnBtn.addEventListener('click', () => {
+            state.bottomTab = 'learn';
+            render();
+        });
+    }
+
+    // Today tab: category cards
+    document.querySelectorAll('.today-cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.category = btn.dataset.cat;
+            localStorage.setItem('lastCategory', state.category);
+            state.bottomTab = 'learn';
+            render();
+        });
+    });
+
+    // Learn tab: category tabs
+    document.querySelectorAll('.category-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.category = btn.dataset.category;
+            localStorage.setItem('lastCategory', state.category);
+            render();
+        });
+    });
+
+    // Learn tab: generate
     const generateBtn = document.getElementById('generateBtn');
     if (generateBtn) {
         generateBtn.addEventListener('click', async () => {
             const card = document.getElementById('generateCard');
             showLoading(card);
             try {
-                const ep = await generateEpisode(state.category);
+                const ep = await generateEpisode(state.category, '', '', getCategoryOpts());
                 state.episodes[state.category] = ep;
                 localStorage.setItem('episodes', JSON.stringify(state.episodes));
                 state.currentEpisode = ep;
@@ -543,33 +1075,29 @@ function attachListeners() {
         });
     }
 
-    // Regenerate
+    // Learn tab: regenerate
     const regenerateBtn = document.getElementById('regenerateBtn');
     if (regenerateBtn) {
         regenerateBtn.addEventListener('click', async () => {
-            const btn = regenerateBtn;
-            btn.disabled = true;
-            btn.textContent = '生成中...';
-
-            // Replace card area with loading
-            const card = document.querySelector('.bg-white.rounded-2xl.shadow-sm');
+            regenerateBtn.disabled = true;
+            regenerateBtn.textContent = '生成中...';
+            const card = document.querySelector('.card');
             if (card) showLoading(card);
-
             try {
-                const ep = await generateEpisode(state.category);
+                const ep = await generateEpisode(state.category, '', '', getCategoryOpts());
                 state.episodes[state.category] = ep;
                 localStorage.setItem('episodes', JSON.stringify(state.episodes));
                 state.currentEpisode = ep;
                 state.view = 'episode';
                 render();
             } catch (err) {
-                render(); // restore
+                render();
                 alert('生成失敗: ' + err.message);
             }
         });
     }
 
-    // Open episode
+    // Learn tab: open episode
     const openEpisodeBtn = document.getElementById('openEpisodeBtn');
     if (openEpisodeBtn) {
         openEpisodeBtn.addEventListener('click', () => {
@@ -579,116 +1107,325 @@ function attachListeners() {
         });
     }
 
-    // Back
+    // Options panel toggle
+    const optionsToggleBtn = document.getElementById('optionsToggleBtn');
+    if (optionsToggleBtn) {
+        optionsToggleBtn.addEventListener('click', () => {
+            state.optionsPanelOpen = !state.optionsPanelOpen;
+            const body = document.getElementById('optionsPanelBody');
+            const arrow = optionsToggleBtn.querySelector('span:last-child');
+            if (body) body.style.display = state.optionsPanelOpen ? 'block' : 'none';
+            if (arrow) arrow.textContent = state.optionsPanelOpen ? '▲' : '▼';
+        });
+    }
+
+    // Options: format chips
+    document.querySelectorAll('.opt-format-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const opts = getCategoryOpts();
+            const fmt = CUSTOM_FORMATS[parseInt(btn.dataset.index, 10)];
+            opts.format = opts.format === fmt.value ? '' : fmt.value;
+            saveCategoryOpts(opts);
+            document.querySelectorAll('.opt-format-btn').forEach(b => {
+                const active = CUSTOM_FORMATS[parseInt(b.dataset.index, 10)].value === opts.format;
+                b.style.background = active ? '#7c3aed' : '#f9fafb';
+                b.style.color = active ? 'white' : '#374151';
+                b.style.borderColor = active ? '#7c3aed' : '#e5e7eb';
+            });
+        });
+    });
+
+    // Options: instructions
+    const optInstructionsArea = document.getElementById('optInstructionsArea');
+    if (optInstructionsArea) {
+        optInstructionsArea.addEventListener('input', () => {
+            const opts = getCategoryOpts();
+            opts.instructions = optInstructionsArea.value;
+            saveCategoryOpts(opts);
+        });
+    }
+
+    // Options: clear
+    const clearOptsBtn = document.getElementById('clearOptsBtn');
+    if (clearOptsBtn) {
+        clearOptsBtn.addEventListener('click', () => {
+            saveCategoryOpts({ format: '', instructions: '' });
+            render();
+        });
+    }
+
+    // Custom: format chips
+    document.querySelectorAll('.custom-format-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const fmt = CUSTOM_FORMATS[parseInt(btn.dataset.index, 10)];
+            state.customFormat = state.customFormat === fmt.value ? '' : fmt.value;
+            localStorage.setItem('customFormat', state.customFormat);
+            document.querySelectorAll('.custom-format-btn').forEach(b => {
+                const active = CUSTOM_FORMATS[parseInt(b.dataset.index, 10)].value === state.customFormat;
+                b.style.background = active ? '#7c3aed' : '#f9fafb';
+                b.style.color = active ? 'white' : '#374151';
+                b.style.borderColor = active ? '#7c3aed' : '#e5e7eb';
+            });
+            const genBtn = document.getElementById('customGenerateBtn');
+            if (genBtn) {
+                const can = !!(state.customFormat || state.customTopic.trim());
+                genBtn.disabled = !can;
+                genBtn.style.background = can ? '#7c3aed' : '#d1d5db';
+            }
+        });
+    });
+
+    // Custom: topic text
+    const customTopicArea = document.getElementById('customTopicArea');
+    if (customTopicArea) {
+        customTopicArea.addEventListener('input', () => {
+            state.customTopic = customTopicArea.value;
+            localStorage.setItem('customTopic', state.customTopic);
+            const genBtn = document.getElementById('customGenerateBtn');
+            if (genBtn) {
+                const can = !!(state.customFormat || state.customTopic.trim());
+                genBtn.disabled = !can;
+                genBtn.style.background = can ? '#7c3aed' : '#d1d5db';
+            }
+        });
+    }
+
+    // Custom: generate
+    const customGenerateBtn = document.getElementById('customGenerateBtn');
+    if (customGenerateBtn) {
+        customGenerateBtn.addEventListener('click', async () => {
+            if (!state.customFormat && !state.customTopic.trim()) return;
+            const card = document.getElementById('customFormCard');
+            if (card) showLoading(card);
+            try {
+                const ep = await generateEpisode('custom', state.customTopic.trim(), state.customFormat);
+                state.episodes['custom'] = ep;
+                localStorage.setItem('episodes', JSON.stringify(state.episodes));
+                state.currentEpisode = ep;
+                state.view = 'episode';
+                render();
+            } catch (err) {
+                if (card) showError(card, err.message);
+            }
+        });
+    }
+
+    // Phrases: delete single
+    document.querySelectorAll('.delete-phrase-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.savedPhrases.splice(parseInt(btn.dataset.index, 10), 1);
+            localStorage.setItem('savedPhrases', JSON.stringify(state.savedPhrases));
+            render();
+        });
+    });
+
+    // Phrases: clear all
+    const clearPhrasesBtn = document.getElementById('clearPhrasesBtn');
+    if (clearPhrasesBtn) {
+        clearPhrasesBtn.addEventListener('click', () => {
+            if (confirm('保存したフレーズをすべて削除しますか？')) {
+                state.savedPhrases = [];
+                localStorage.setItem('savedPhrases', '[]');
+                render();
+            }
+        });
+    }
+
+    // Settings: save API key
+    const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+    if (saveApiKeyBtn) {
+        saveApiKeyBtn.addEventListener('click', () => {
+            const newKey = document.getElementById('settingsApiKey').value.trim();
+            if (newKey) {
+                state.apiKey = newKey;
+                localStorage.setItem('apiKey', newKey);
+                alert('APIキーを保存しました');
+            }
+        });
+    }
+
+    // Settings: save voices
+    const saveVoicesBtn = document.getElementById('saveVoicesBtn');
+    if (saveVoicesBtn) {
+        saveVoicesBtn.addEventListener('click', () => {
+            speechSynthesis.cancel();
+            state.voiceNameA = document.getElementById('voiceSelectA').value;
+            state.voiceNameB = document.getElementById('voiceSelectB').value;
+            localStorage.setItem('voiceNameA', state.voiceNameA);
+            localStorage.setItem('voiceNameB', state.voiceNameB);
+            alert('音声設定を保存しました');
+        });
+    }
+
+    // Settings: preview buttons
+    const previewBtnA = document.getElementById('previewBtnA');
+    if (previewBtnA) {
+        previewBtnA.addEventListener('click', () => previewVoice('voiceSelectA', 'previewBtnA'));
+    }
+    const previewBtnB = document.getElementById('previewBtnB');
+    if (previewBtnB) {
+        previewBtnB.addEventListener('click', () => previewVoice('voiceSelectB', 'previewBtnB'));
+    }
+
+    // Settings: speed
+    document.querySelectorAll('.settings-speed-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.ttsRate = parseFloat(btn.dataset.rate);
+            localStorage.setItem('ttsRate', String(state.ttsRate));
+            document.querySelectorAll('.settings-speed-btn').forEach(b => {
+                const active = parseFloat(b.dataset.rate) === state.ttsRate;
+                b.style.background = active ? 'var(--primary)' : '#f3f4f6';
+                b.style.color = active ? 'white' : '#374151';
+            });
+        });
+    });
+
+    // Settings: clear episodes
+    const clearEpisodesBtn = document.getElementById('clearEpisodesBtn');
+    if (clearEpisodesBtn) {
+        clearEpisodesBtn.addEventListener('click', () => {
+            if (confirm('生成済みエピソードをすべて削除しますか？フレーズ帳は残ります。')) {
+                state.episodes = {};
+                localStorage.setItem('episodes', '{}');
+                render();
+            }
+        });
+    }
+
+    // Settings: clear all
+    const clearAllDataBtn = document.getElementById('clearAllDataBtn');
+    if (clearAllDataBtn) {
+        clearAllDataBtn.addEventListener('click', () => {
+            if (confirm('すべてのデータ（エピソード・フレーズ帳・設定）をリセットしますか？\nこの操作は取り消せません。')) {
+                localStorage.clear();
+                location.reload();
+            }
+        });
+    }
+
+    // Episode: back
     const backBtn = document.getElementById('backBtn');
     if (backBtn) {
         backBtn.addEventListener('click', () => {
             speechSynthesis.cancel();
             state.isPlaying = false;
             state.isPaused = false;
-            state.view = 'home';
+            state.view = 'main';
             render();
         });
     }
 
-    // Speed buttons
+    // Episode: translation toggle
+    const translationToggleBtn = document.getElementById('translationToggleBtn');
+    if (translationToggleBtn) {
+        translationToggleBtn.addEventListener('click', () => {
+            state.showTranslations = !state.showTranslations;
+            document.querySelectorAll('.translation-text').forEach(el => {
+                el.style.display = state.showTranslations ? 'block' : 'none';
+            });
+            translationToggleBtn.style.background = state.showTranslations ? 'var(--primary)' : '#f3f4f6';
+            translationToggleBtn.style.color = state.showTranslations ? 'white' : '#374151';
+        });
+    }
+
+    // Episode: speed (player)
     document.querySelectorAll('.speed-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             state.ttsRate = parseFloat(btn.dataset.rate);
             localStorage.setItem('ttsRate', String(state.ttsRate));
-            if (state.isPlaying) {
-                speechSynthesis.cancel();
-                ttsSpeak(state.currentEpisode);
-            }
-            // Update button styles
+            if (state.isPlaying) { speechSynthesis.cancel(); ttsSpeak(state.currentEpisode); }
             document.querySelectorAll('.speed-btn').forEach(b => {
                 const active = parseFloat(b.dataset.rate) === state.ttsRate;
-                b.style.background = active ? '#2563eb' : '#f3f4f6';
+                b.style.background = active ? 'var(--primary)' : '#f3f4f6';
                 b.style.color = active ? 'white' : '#374151';
             });
         });
     });
 
-    // Play / Pause
+    // Episode: play/pause
     const playBtn = document.getElementById('playBtn');
     if (playBtn) {
         playBtn.addEventListener('click', () => {
             if (state.isPlaying) {
                 speechSynthesis.pause();
-                state.isPlaying = false;
-                state.isPaused = true;
-                playBtn.textContent = '▶ 再生';
+                state.isPlaying = false; state.isPaused = true;
+                playBtn.innerHTML = '▶';
+                document.getElementById('playBtnLabel').textContent = '再生';
             } else if (state.isPaused) {
                 speechSynthesis.resume();
-                state.isPlaying = true;
-                state.isPaused = false;
-                playBtn.textContent = '⏸ 一時停止';
+                state.isPlaying = true; state.isPaused = false;
+                playBtn.innerHTML = '⏸';
+                document.getElementById('playBtnLabel').textContent = '一時停止';
             } else {
                 ttsSpeak(state.currentEpisode);
-                state.isPlaying = true;
-                state.isPaused = false;
-                playBtn.textContent = '⏸ 一時停止';
+                playBtn.innerHTML = '⏸';
+                document.getElementById('playBtnLabel').textContent = '一時停止';
             }
         });
     }
 
-    // Stop
+    // Episode: stop
     const stopBtn = document.getElementById('stopBtn');
     if (stopBtn) {
         stopBtn.addEventListener('click', () => {
             speechSynthesis.cancel();
-            state.isPlaying = false;
-            state.isPaused = false;
+            state.isPlaying = false; state.isPaused = false;
             ttsIndex = 0;
-            const btn = document.getElementById('playBtn');
-            if (btn) btn.textContent = '▶ 再生';
+            updatePlayerUI();
+            updateProgressBar();
+            document.querySelectorAll('.seg-card').forEach(el => el.classList.remove('playing'));
         });
     }
 
-    // Rewind
+    // Episode: rewind
     const rewindBtn = document.getElementById('rewindBtn');
     if (rewindBtn) {
         rewindBtn.addEventListener('click', () => {
             speechSynthesis.cancel();
             ttsIndex = 0;
-            if (state.isPlaying) {
-                ttsSpeak(state.currentEpisode);
-            }
+            if (state.isPlaying) ttsSpeak(state.currentEpisode);
+            updateProgressBar();
         });
     }
 
-    // Phrase highlights
+    // Episode: save phrase
+    document.querySelectorAll('.save-phrase-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const phrase = decodeURIComponent(btn.dataset.phrase);
+            const explanation = decodeURIComponent(btn.dataset.explanation);
+            const episodeTitle = decodeURIComponent(btn.dataset.episode);
+            const idx = state.savedPhrases.findIndex(s => s.phrase === phrase);
+            if (idx !== -1) {
+                state.savedPhrases.splice(idx, 1);
+                btn.textContent = '☆';
+            } else {
+                state.savedPhrases.unshift({ phrase, explanation, episodeTitle, savedAt: new Date().toISOString() });
+                btn.textContent = '⭐';
+            }
+            localStorage.setItem('savedPhrases', JSON.stringify(state.savedPhrases));
+        });
+    });
+
+    // Episode: phrase highlights
     document.querySelectorAll('.highlight-phrase').forEach(el => {
         el.addEventListener('click', e => {
             e.stopPropagation();
             const phraseId = `${el.dataset.seg}-${el.dataset.hi}`;
-
-            // Remove all existing tooltips
             document.querySelectorAll('.phrase-tooltip').forEach(t => t.remove());
             document.querySelectorAll('.highlight-phrase.active').forEach(h => h.classList.remove('active'));
-
-            if (state.activePhrase === phraseId) {
-                state.activePhrase = null;
-                return;
-            }
-
+            if (state.activePhrase === phraseId) { state.activePhrase = null; return; }
             state.activePhrase = phraseId;
             el.classList.add('active');
-
             const phrase = decodeURIComponent(el.dataset.phrase);
             const explanation = decodeURIComponent(el.dataset.explanation);
-
             const tooltip = document.createElement('div');
             tooltip.className = 'phrase-tooltip fade-in';
-            tooltip.innerHTML = `<strong style="color:#fde68a">${escapeHtml(phrase)}</strong><br><span style="color:#e2e8f0;font-size:12px">${escapeHtml(explanation)}</span>`;
-
-            // Insert after the parent card div
-            const card = el.closest('.bg-white');
+            tooltip.innerHTML = `<strong style="color:#fde68a;">${escapeHtml(phrase)}</strong><br><span style="color:#e2e8f0;font-size:12px;">${escapeHtml(explanation)}</span>`;
+            const card = el.closest('.seg-card');
             if (card) card.appendChild(tooltip);
         });
     });
 
-    // Click outside to close tooltip
     document.addEventListener('click', e => {
         if (!e.target.classList.contains('highlight-phrase')) {
             document.querySelectorAll('.phrase-tooltip').forEach(t => t.remove());
@@ -698,17 +1435,36 @@ function attachListeners() {
     }, { passive: true });
 }
 
-// ===== INIT =====
-// Load voices asynchronously
-if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = () => {};
+function previewVoice(selectId, btnId) {
+    const selectEl = document.getElementById(selectId);
+    const btn = document.getElementById(btnId);
+    if (!selectEl) return;
+    const voices = getEnglishVoices();
+    const voice = voices.find(v => v.name === selectEl.value);
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(PREVIEW_TEXT);
+    utter.lang = 'en-US';
+    utter.rate = state.ttsRate;
+    if (voice) utter.voice = voice;
+    if (btn) {
+        btn.textContent = '⏹';
+        btn.style.background = '#ef4444';
+        utter.onend = utter.onerror = () => {
+            btn.textContent = '▶ 試聴';
+            btn.style.background = 'var(--primary)';
+        };
+    }
+    speechSynthesis.speak(utter);
 }
 
-// Service Worker registration
+// ===== INIT =====
+if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = initDefaultVoices;
+}
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
-
+initDefaultVoices();
 render();
 </script>
 </body>
