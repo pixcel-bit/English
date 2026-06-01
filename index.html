@@ -103,6 +103,8 @@ const state = {
     episodes: JSON.parse(localStorage.getItem('episodes') || '{}'),
     currentEpisode: null,
     ttsRate: parseFloat(localStorage.getItem('ttsRate') || '1.0'),
+    voiceNameA: localStorage.getItem('voiceNameA') || '',
+    voiceNameB: localStorage.getItem('voiceNameB') || '',
     isPlaying: false,
     isPaused: false,
     activePhrase: null,
@@ -111,6 +113,70 @@ const state = {
 // ===== TTS ENGINE =====
 let ttsSegments = [];
 let ttsIndex = 0;
+
+// Preferred voice names in order of quality
+const VOICE_PRIORITY = [
+    'Google US English', 'Google UK English Female', 'Google UK English Male',
+    'Samantha', 'Karen', 'Daniel', 'Moira', 'Fiona', 'Victoria',
+    'Google', 'Natural', 'Enhanced', 'Premium',
+];
+
+function getEnglishVoices() {
+    return speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+}
+
+function getBestVoice(preferFemale = false) {
+    const voices = getEnglishVoices();
+    if (voices.length === 0) return null;
+
+    // Try priority list first
+    for (const pref of VOICE_PRIORITY) {
+        const match = voices.find(v => {
+            if (!v.name.includes(pref.split(' ')[0])) return false;
+            if (preferFemale) {
+                return v.name.toLowerCase().includes('female') ||
+                    ['Samantha', 'Karen', 'Moira', 'Fiona', 'Victoria',
+                     'Google UK English Female'].some(n => v.name.includes(n));
+            }
+            return true;
+        });
+        if (match) return match;
+    }
+
+    // Fallback: first (male) or second (female attempt) voice
+    return preferFemale && voices.length > 1 ? voices[1] : voices[0];
+}
+
+function getVoice(speakerId) {
+    const voices = getEnglishVoices();
+    if (voices.length === 0) return null;
+
+    const savedName = speakerId === 'B' ? state.voiceNameB : state.voiceNameA;
+    if (savedName) {
+        const found = voices.find(v => v.name === savedName);
+        if (found) return found;
+    }
+
+    return getBestVoice(speakerId === 'B');
+}
+
+function initDefaultVoices() {
+    // Auto-select best voices on first run (if not already saved)
+    if (!state.voiceNameA) {
+        const voiceA = getBestVoice(false);
+        if (voiceA) {
+            state.voiceNameA = voiceA.name;
+            localStorage.setItem('voiceNameA', voiceA.name);
+        }
+    }
+    if (!state.voiceNameB) {
+        const voiceB = getBestVoice(true);
+        if (voiceB) {
+            state.voiceNameB = voiceB.name;
+            localStorage.setItem('voiceNameB', voiceB.name);
+        }
+    }
+}
 
 function ttsSpeak(episode) {
     speechSynthesis.cancel();
@@ -131,11 +197,8 @@ function ttsPlayNext() {
     utter.lang = 'en-US';
     utter.rate = state.ttsRate;
 
-    const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-    if (voices.length > 0) {
-        // Speaker B gets second voice (usually female)
-        utter.voice = (seg.speaker === 'B' && voices.length > 1) ? voices[1] : voices[0];
-    }
+    const voice = getVoice(seg.speaker);
+    if (voice) utter.voice = voice;
 
     utter.onend = () => { ttsIndex++; ttsPlayNext(); };
     utter.onerror = () => { state.isPlaying = false; updatePlayerUI(); };
@@ -503,17 +566,10 @@ function attachListeners() {
         });
     }
 
-    // Settings: change API key
+    // Settings: show modal
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) {
-        settingsBtn.addEventListener('click', () => {
-            const newKey = prompt('Anthropic APIキー:', state.apiKey);
-            if (newKey !== null && newKey.trim()) {
-                state.apiKey = newKey.trim();
-                localStorage.setItem('apiKey', state.apiKey);
-                alert('APIキーを更新しました');
-            }
-        });
+        settingsBtn.addEventListener('click', showSettingsModal);
     }
 
     // Category tabs
@@ -698,16 +754,93 @@ function attachListeners() {
     }, { passive: true });
 }
 
+// ===== SETTINGS MODAL =====
+function showSettingsModal() {
+    const voices = getEnglishVoices();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'settingsModal';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-end;';
+
+    const voiceOptions = (selectedName) => voices.map(v =>
+        `<option value="${escapeHtml(v.name)}" ${selectedName === v.name ? 'selected' : ''}>${escapeHtml(v.name)}</option>`
+    ).join('');
+
+    overlay.innerHTML = `
+    <div style="background:white;border-radius:20px 20px 0 0;width:100%;padding:24px 20px 36px;max-height:85vh;overflow-y:auto;box-sizing:border-box;">
+      <h2 style="font-size:17px;font-weight:700;color:#111827;margin:0 0 20px;">⚙️ 設定</h2>
+
+      <div style="margin-bottom:18px;">
+        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Anthropic API Key</label>
+        <input id="settingsApiKey" type="password" value="${escapeHtml(state.apiKey)}"
+          style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;">
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Speaker A の音声</label>
+        <p style="font-size:11px;color:#9ca3af;margin:0 0 6px;">主話者（青）</p>
+        <select id="voiceSelectA"
+          style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;background:white;box-sizing:border-box;outline:none;">
+          ${voiceOptions(state.voiceNameA)}
+        </select>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Speaker B の音声</label>
+        <p style="font-size:11px;color:#9ca3af;margin:0 0 6px;">対話相手（緑）</p>
+        <select id="voiceSelectB"
+          style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;background:white;box-sizing:border-box;outline:none;">
+          ${voiceOptions(state.voiceNameB)}
+        </select>
+      </div>
+
+      ${voices.length === 0 ? `
+      <p style="font-size:12px;color:#ef4444;background:#fef2f2;padding:10px 12px;border-radius:8px;margin-bottom:16px;">
+        ⚠️ 英語音声が見つかりません。端末の設定 → アクセシビリティ → 読み上げ → 声 で英語音声をダウンロードしてください。
+      </p>` : ''}
+
+      <button id="saveSettingsBtn"
+        style="width:100%;background:#2563eb;color:white;padding:14px;border-radius:12px;font-size:15px;font-weight:600;border:none;cursor:pointer;margin-bottom:8px;">
+        保存する
+      </button>
+      <button id="closeSettingsBtn"
+        style="width:100%;background:transparent;color:#6b7280;padding:12px;border-radius:12px;font-size:14px;border:none;cursor:pointer;">
+        キャンセル
+      </button>
+    </div>`;
+
+    document.body.appendChild(overlay);
+
+    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+        const newKey = document.getElementById('settingsApiKey').value.trim();
+        if (newKey) {
+            state.apiKey = newKey;
+            localStorage.setItem('apiKey', newKey);
+        }
+        state.voiceNameA = document.getElementById('voiceSelectA').value;
+        state.voiceNameB = document.getElementById('voiceSelectB').value;
+        localStorage.setItem('voiceNameA', state.voiceNameA);
+        localStorage.setItem('voiceNameB', state.voiceNameB);
+        overlay.remove();
+    });
+
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
 // ===== INIT =====
 // Load voices asynchronously
 if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = () => {};
+    speechSynthesis.onvoiceschanged = initDefaultVoices;
 }
 
 // Service Worker registration
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
+
+// Try initializing voices immediately (Chrome loads them sync sometimes)
+initDefaultVoices();
 
 render();
 </script>
