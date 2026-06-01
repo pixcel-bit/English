@@ -108,6 +108,8 @@ const state = {
     isPlaying: false,
     isPaused: false,
     activePhrase: null,
+    showTranslations: false,
+    savedPhrases: JSON.parse(localStorage.getItem('savedPhrases') || '[]'),
 };
 
 // ===== TTS ENGINE =====
@@ -237,6 +239,7 @@ Return this exact JSON structure:
     {
       "speaker": "A",
       "text": "Natural spoken English. 2-4 sentences per segment.",
+      "translation": "textの自然な日本語訳",
       "highlights": [
         {
           "phrase": "exact phrase from the text above (word-for-word match)",
@@ -251,7 +254,8 @@ Rules:
 - 4-6 segments total, realistic dialogue between two professionals
 - 2-3 highlights per segment, choose practical business phrases
 - Phrases must be verbatim substrings of the segment text
-- Japanese explanations should be practical and include usage notes`;
+- Japanese explanations should be practical and include usage notes
+- translation must be natural Japanese, not word-for-word`;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -334,9 +338,10 @@ function buildHighlightedText(text, highlights, segIndex) {
 // ===== RENDER =====
 function render() {
     const app = document.getElementById('app');
-    if (state.view === 'setup')   app.innerHTML = renderSetup();
-    if (state.view === 'home')    app.innerHTML = renderHome();
-    if (state.view === 'episode') app.innerHTML = renderEpisode();
+    if (state.view === 'setup')      app.innerHTML = renderSetup();
+    if (state.view === 'home')       app.innerHTML = renderHome();
+    if (state.view === 'episode')    app.innerHTML = renderEpisode();
+    if (state.view === 'phrasebook') app.innerHTML = renderPhrasebook();
     attachListeners();
 }
 
@@ -407,6 +412,12 @@ function renderHome() {
           <button id="regenerateBtn" class="w-full mt-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-500 font-medium active:bg-gray-50">
             🔄 新しいエピソードを生成する
           </button>` : ''}
+
+        <!-- Phrasebook Entry -->
+        <button id="phrasebookBtn" class="w-full mt-4 py-3 rounded-xl border border-amber-200 bg-amber-50 text-sm text-amber-700 font-semibold active:bg-amber-100 flex items-center justify-center gap-2">
+          ⭐ フレーズ帳
+          ${state.savedPhrases.length > 0 ? `<span style="background:#f59e0b;color:white;font-size:11px;padding:1px 7px;border-radius:99px;">${state.savedPhrases.length}</span>` : ''}
+        </button>
       </div>
     </div>`;
 }
@@ -456,7 +467,10 @@ function renderEpisode() {
           <p class="text-xs text-gray-400 truncate">${escapeHtml(ep.categoryLabel)}</p>
           <h1 class="font-bold text-gray-900 text-sm truncate leading-tight">${escapeHtml(ep.title)}</h1>
         </div>
-        <span class="text-xs text-gray-400 whitespace-nowrap">⏱ ${ep.duration}</span>
+        <button id="translationToggleBtn"
+          style="flex-shrink:0;font-size:12px;font-weight:600;padding:5px 10px;border-radius:8px;border:none;cursor:pointer;${state.showTranslations ? 'background:#2563eb;color:white;' : 'background:#f3f4f6;color:#374151;'}">
+          日本語
+        </button>
       </div>
 
       <!-- Script -->
@@ -480,9 +494,14 @@ function renderEpisode() {
             return `
             <div class="mb-4">
               ${isDialog && speaker ? `<p class="text-xs font-bold text-gray-400 uppercase mb-1.5 pl-4">${escapeHtml(speaker.name)}</p>` : ''}
-              <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 ${isDialog ? 'border-l-4' : ''}"
-                   style="${isDialog ? `border-left-color:${borderColor};border-left-width:4px;` : ''}">
+              <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+                   style="${isDialog ? `border-left:4px solid ${borderColor};` : ''}">
                 <p class="text-gray-900 text-base leading-relaxed">${highlightedText}</p>
+                ${seg.translation ? `
+                  <p class="translation-text text-gray-500 text-sm leading-relaxed mt-2 pt-2 border-t border-gray-100"
+                     style="display:${state.showTranslations ? 'block' : 'none'}">
+                    ${escapeHtml(seg.translation)}
+                  </p>` : ''}
               </div>
             </div>`;
         }).join('')}
@@ -491,12 +510,20 @@ function renderEpisode() {
         ${allPhrases.length > 0 ? `
         <div class="mt-6 bg-amber-50 rounded-2xl p-4 border border-amber-100">
           <h3 class="font-bold text-gray-800 text-sm mb-4">📌 今日のキーフレーズ (${allPhrases.length})</h3>
-          ${allPhrases.map(p => `
-            <div class="mb-4 last:mb-0 pb-4 last:pb-0 border-b border-amber-100 last:border-0">
-              <p class="font-semibold text-gray-900 text-sm">${escapeHtml(p.phrase)}</p>
-              <p class="text-gray-600 text-xs mt-1 leading-relaxed">${escapeHtml(p.explanation)}</p>
-            </div>
-          `).join('')}
+          ${allPhrases.map(p => {
+            const isSaved = state.savedPhrases.some(s => s.phrase === p.phrase);
+            return `
+            <div class="mb-3 last:mb-0 pb-3 last:pb-0 border-b border-amber-100 last:border-0">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+                <div style="flex:1;min-width:0;">
+                  <p class="font-semibold text-gray-900 text-sm">${escapeHtml(p.phrase)}</p>
+                  <p class="text-gray-600 text-xs mt-1 leading-relaxed">${escapeHtml(p.explanation)}</p>
+                </div>
+                <button class="save-phrase-btn flex-shrink-0 text-lg" data-phrase="${encodeURIComponent(p.phrase)}" data-explanation="${encodeURIComponent(p.explanation)}" data-episode="${encodeURIComponent(ep.title)}"
+                  style="background:none;border:none;cursor:pointer;padding:2px;">${isSaved ? '⭐' : '☆'}</button>
+              </div>
+            </div>`;
+          }).join('')}
         </div>` : ''}
       </div>
 
@@ -522,6 +549,42 @@ function renderEpisode() {
           </button>
           <button id="stopBtn" class="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 text-lg active:bg-gray-200">⏹</button>
         </div>
+      </div>
+    </div>`;
+}
+
+// --- Phrasebook ---
+function renderPhrasebook() {
+    const phrases = state.savedPhrases;
+    return `
+    <div class="min-h-screen bg-gray-50">
+      <div class="bg-white border-b border-gray-100 px-4 pt-12 pb-4 flex items-center gap-3 sticky top-0 z-10">
+        <button id="backBtn" class="text-blue-600 font-semibold text-sm whitespace-nowrap">← 戻る</button>
+        <h1 class="font-bold text-gray-900 text-base flex-1">⭐ フレーズ帳</h1>
+        ${phrases.length > 0 ? `<button id="clearPhrasesBtn" style="font-size:12px;color:#ef4444;background:none;border:none;cursor:pointer;">全削除</button>` : ''}
+      </div>
+
+      <div class="px-4 pt-4 pb-8">
+        ${phrases.length === 0 ? `
+          <div class="text-center py-16">
+            <div class="text-5xl mb-4">☆</div>
+            <p class="text-gray-500 font-medium">保存したフレーズがありません</p>
+            <p class="text-gray-400 text-sm mt-2">エピソードのキーフレーズの ☆ を押して登録できます</p>
+          </div>` :
+          phrases.map((p, i) => `
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-3">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                <div style="flex:1;min-width:0;">
+                  <p class="font-bold text-gray-900 text-base">${escapeHtml(p.phrase)}</p>
+                  <p class="text-gray-600 text-sm mt-1 leading-relaxed">${escapeHtml(p.explanation)}</p>
+                  <p class="text-gray-400 text-xs mt-2">📖 ${escapeHtml(p.episodeTitle)}</p>
+                </div>
+                <button class="delete-phrase-btn flex-shrink-0" data-index="${i}"
+                  style="background:none;border:none;cursor:pointer;color:#d1d5db;font-size:18px;padding:2px;">✕</button>
+              </div>
+            </div>
+          `).join('')
+        }
       </div>
     </div>`;
 }
@@ -570,6 +633,70 @@ function attachListeners() {
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) {
         settingsBtn.addEventListener('click', showSettingsModal);
+    }
+
+    // Phrasebook button (home)
+    const phrasebookBtn = document.getElementById('phrasebookBtn');
+    if (phrasebookBtn) {
+        phrasebookBtn.addEventListener('click', () => {
+            state.view = 'phrasebook';
+            render();
+        });
+    }
+
+    // Translation toggle (episode)
+    const translationToggleBtn = document.getElementById('translationToggleBtn');
+    if (translationToggleBtn) {
+        translationToggleBtn.addEventListener('click', () => {
+            state.showTranslations = !state.showTranslations;
+            // Toggle all translation texts without full re-render
+            document.querySelectorAll('.translation-text').forEach(el => {
+                el.style.display = state.showTranslations ? 'block' : 'none';
+            });
+            translationToggleBtn.style.background = state.showTranslations ? '#2563eb' : '#f3f4f6';
+            translationToggleBtn.style.color = state.showTranslations ? 'white' : '#374151';
+        });
+    }
+
+    // Save phrase buttons (episode key phrases)
+    document.querySelectorAll('.save-phrase-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const phrase = decodeURIComponent(btn.dataset.phrase);
+            const explanation = decodeURIComponent(btn.dataset.explanation);
+            const episodeTitle = decodeURIComponent(btn.dataset.episode);
+
+            const alreadySaved = state.savedPhrases.findIndex(s => s.phrase === phrase);
+            if (alreadySaved !== -1) {
+                state.savedPhrases.splice(alreadySaved, 1);
+                btn.textContent = '☆';
+            } else {
+                state.savedPhrases.unshift({ phrase, explanation, episodeTitle, savedAt: new Date().toISOString() });
+                btn.textContent = '⭐';
+            }
+            localStorage.setItem('savedPhrases', JSON.stringify(state.savedPhrases));
+        });
+    });
+
+    // Delete single phrase (phrasebook)
+    document.querySelectorAll('.delete-phrase-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const i = parseInt(btn.dataset.index, 10);
+            state.savedPhrases.splice(i, 1);
+            localStorage.setItem('savedPhrases', JSON.stringify(state.savedPhrases));
+            render();
+        });
+    });
+
+    // Clear all phrases (phrasebook)
+    const clearPhrasesBtn = document.getElementById('clearPhrasesBtn');
+    if (clearPhrasesBtn) {
+        clearPhrasesBtn.addEventListener('click', () => {
+            if (confirm('保存したフレーズをすべて削除しますか？')) {
+                state.savedPhrases = [];
+                localStorage.setItem('savedPhrases', '[]');
+                render();
+            }
+        });
     }
 
     // Category tabs
