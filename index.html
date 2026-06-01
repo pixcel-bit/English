@@ -311,7 +311,7 @@ Rules:
         },
         body: JSON.stringify({
             model: 'claude-sonnet-4-6',
-            max_tokens: 2048,
+            max_tokens: 4096,
             system: systemPrompt,
             messages: [{ role: 'user', content: userPrompt }]
         })
@@ -326,9 +326,14 @@ Rules:
     const raw = data.content[0].text;
 
     const match = raw.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('レスポンスのパースに失敗しました');
+    if (!match) throw new Error('レスポンスのパースに失敗しました。もう一度お試しください。');
 
-    const episode = JSON.parse(match[0]);
+    let episode;
+    try {
+        episode = JSON.parse(match[0]);
+    } catch (e) {
+        throw new Error('JSONのパースに失敗しました。もう一度お試しください。');
+    }
     episode.generatedAt = new Date().toISOString();
     return episode;
 }
