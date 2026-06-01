@@ -94,6 +94,24 @@ const CATEGORIES = [
         prompt: 'AI adoption in enterprise, SaaS industry trends, DAP (Digital Adoption Platform) technology, and discussing tech topics professionally'
     },
     {
+        id: 'daily',
+        label: '日常会話',
+        emoji: '💬',
+        prompt: 'everyday English conversation: talking about hobbies, weekends, food, weather, family, feelings — natural casual English used between friends and acquaintances'
+    },
+    {
+        id: 'travel',
+        label: '旅行',
+        emoji: '✈️',
+        prompt: 'travel English: checking in at airports and hotels, ordering food, asking for directions, sightseeing, dealing with unexpected situations abroad'
+    },
+    {
+        id: 'culture',
+        label: '映画・カルチャー',
+        emoji: '🎬',
+        prompt: 'casual English inspired by movies, TV shows, and pop culture: expressions, slang, and natural conversations that appear in entertainment media'
+    },
+    {
         id: 'custom',
         label: 'Custom',
         emoji: '✏️',
@@ -116,7 +134,8 @@ const state = {
     activePhrase: null,
     showTranslations: false,
     savedPhrases: JSON.parse(localStorage.getItem('savedPhrases') || '[]'),
-    customInput: localStorage.getItem('customInput') || '',
+    customFormat: localStorage.getItem('customFormat') || '',
+    customTopic: localStorage.getItem('customTopic') || '',
 };
 
 // ===== TTS ENGINE =====
@@ -160,13 +179,15 @@ function getVoice(speakerId) {
     const voices = getEnglishVoices();
     if (voices.length === 0) return null;
 
-    const savedName = speakerId === 'B' ? state.voiceNameB : state.voiceNameA;
+    // C borrows A's voice at a slightly lower pitch via rate tweak (handled in ttsPlayNext)
+    const effectiveId = speakerId === 'C' ? 'A' : speakerId;
+    const savedName = effectiveId === 'B' ? state.voiceNameB : state.voiceNameA;
     if (savedName) {
         const found = voices.find(v => v.name === savedName);
         if (found) return found;
     }
 
-    return getBestVoice(speakerId === 'B');
+    return getBestVoice(effectiveId === 'B');
 }
 
 function initDefaultVoices() {
@@ -222,9 +243,17 @@ function updatePlayerUI() {
 }
 
 // ===== CLAUDE API =====
-async function generateEpisode(categoryId, customText = '') {
+async function generateEpisode(categoryId, customTopic = '', customFormat = '') {
     const cat = CATEGORIES.find(c => c.id === categoryId);
-    const topicPrompt = categoryId === 'custom' ? customText : cat.prompt;
+    let topicPrompt = cat.prompt;
+    if (categoryId === 'custom') {
+        const parts = [];
+        if (customFormat) parts.push(`Format: ${customFormat}`);
+        if (customTopic) parts.push(`Topic: ${customTopic}`);
+        topicPrompt = parts.join('. ');
+    }
+    const formatObj = CUSTOM_FORMATS.find(f => f.value === customFormat);
+    const speakerCount = formatObj ? formatObj.speakers : 2;
 
     const systemPrompt = `You are an English learning content creator for a Japanese business professional.
 The learner is: Male, 34, Customer Success Manager at a SaaS company in Tokyo, targeting TOEIC 700-800 and job interviews at major Japanese companies.
@@ -239,10 +268,11 @@ Return this exact JSON structure:
   "title": "Specific, engaging episode title",
   "duration": "2 min",
   "categoryLabel": "${categoryId === 'custom' ? 'Custom' : cat.label}",
-  "speakers": [
-    {"id": "A", "name": "Name (Role)", "gender": "male"},
-    {"id": "B", "name": "Name (Role)", "gender": "female"}
-  ],
+  "speakers": ${categoryId === 'custom' && speakerCount === 1
+    ? '[{"id":"A","name":"Name (Role)","gender":"male"}]'
+    : categoryId === 'custom' && speakerCount === 3
+    ? '[{"id":"A","name":"Name (Role)","gender":"male"},{"id":"B","name":"Name (Role)","gender":"female"},{"id":"C","name":"Name (Role)","gender":"male"}]'
+    : '[{"id":"A","name":"Name (Role)","gender":"male"},{"id":"B","name":"Name (Role)","gender":"female"}]'},
   "segments": [
     {
       "speaker": "A",
@@ -432,51 +462,53 @@ function renderHome() {
     </div>`;
 }
 
-const CUSTOM_PRESETS = [
-    { label: '採用面接', text: 'job interview for a Customer Success Manager position at a major Japanese company like Honda. Focus on introducing past CS experience and motivation.' },
-    { label: 'チームMTG', text: 'team meeting in English: sharing project status updates, raising blockers, and aligning on next steps.' },
-    { label: 'プレゼン', text: 'business presentation to English-speaking stakeholders about a new SaaS feature and its ROI.' },
-    { label: '電話応対', text: 'handling an unexpected phone call from an English-speaking enterprise client who has a complaint.' },
-    { label: 'メール返信', text: 'drafting and reviewing professional email replies to an English-speaking client regarding a delayed deliverable.' },
-    { label: '1on1', text: 'one-on-one meeting with an English-speaking manager: discussing performance, goals, and career development.' },
-    { label: '社内提案', text: 'proposing a new CS initiative to leadership in English, including expected impact and required resources.' },
-    { label: 'スモールトーク', text: 'casual small talk and relationship-building conversation with English-speaking colleagues at a business event.' },
+const CUSTOM_FORMATS = [
+    { label: '2人の対話',    value: 'a realistic back-and-forth dialogue between exactly 2 speakers (A and B)',                           speakers: 2 },
+    { label: '複数人の会話', value: 'a group conversation with 3 speakers (A, B, and C) naturally talking together',                     speakers: 3 },
+    { label: 'スピーチ',     value: 'a monologue speech delivered by a single speaker (A only) to an audience',                          speakers: 1 },
+    { label: 'ポッドキャスト', value: 'a podcast-style narration by a single host (A only) explaining a topic in an engaging way',       speakers: 1 },
+    { label: 'インタビュー', value: 'an interview format where A is the interviewer and B is the guest being interviewed',               speakers: 2 },
+    { label: 'ニュース解説', value: 'a news broadcast style with anchor A introducing the story and reporter B adding commentary',       speakers: 2 },
 ];
 
 function renderCustomForm() {
+    const canGenerate = state.customFormat || state.customTopic.trim();
     return `
     <div id="customFormCard" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div class="px-5 py-4" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">
         <p class="text-purple-200 text-xs font-semibold uppercase tracking-widest">✏️ Custom</p>
-        <h2 class="text-white font-bold text-lg mt-1">自由にシチュエーションを設定</h2>
-        <p class="text-purple-200 text-xs mt-1">選択式と自由記述を組み合わせて使えます</p>
+        <h2 class="text-white font-bold text-lg mt-1">形式とテーマを自由に設定</h2>
+        <p class="text-purple-200 text-xs mt-1">どちらか一方だけでも生成できます</p>
       </div>
       <div class="p-4">
 
-        <!-- Preset chips -->
-        <p class="text-xs font-semibold text-gray-500 mb-2">よく使うシチュエーション</p>
-        <div class="flex flex-wrap gap-2 mb-4">
-          ${CUSTOM_PRESETS.map((p, i) => `
-            <button class="custom-preset-btn text-xs font-medium px-3 py-1.5 rounded-full border transition-all"
+        <!-- Format chips -->
+        <p class="text-xs font-semibold text-gray-500 mb-1">形式を選ぶ</p>
+        <p class="text-xs text-gray-400 mb-2">会話の構成・スタイルを決める</p>
+        <div class="flex flex-wrap gap-2 mb-5">
+          ${CUSTOM_FORMATS.map((f, i) => {
+            const active = state.customFormat === f.value;
+            return `<button class="custom-format-btn text-xs font-semibold px-3 py-1.5 rounded-full border"
               data-index="${i}"
-              style="border-color:#e5e7eb;background:${state.customInput === p.text ? '#7c3aed' : '#f9fafb'};color:${state.customInput === p.text ? 'white' : '#374151'};">
-              ${p.label}
-            </button>
-          `).join('')}
+              style="border-color:${active ? '#7c3aed' : '#e5e7eb'};background:${active ? '#7c3aed' : '#f9fafb'};color:${active ? 'white' : '#374151'};">
+              ${f.label}
+            </button>`;
+          }).join('')}
         </div>
 
-        <!-- Free text -->
-        <p class="text-xs font-semibold text-gray-500 mb-2">詳細・自由入力</p>
-        <textarea id="customInputArea" rows="3"
-          placeholder="例：HondaのグローバルチームとのキックオフMTGで自己紹介したい&#10;例：チャーンリスクのある顧客に改善提案を伝えたい"
+        <!-- Topic free text -->
+        <p class="text-xs font-semibold text-gray-500 mb-1">テーマ・詳細（自由入力）</p>
+        <p class="text-xs text-gray-400 mb-2">何について話すかを日本語でも英語でも書けます</p>
+        <textarea id="customTopicArea" rows="3"
+          placeholder="例：Hondaの最終面接でCSの経験を話したい&#10;例：パリ旅行でホテルにチェックインする場面&#10;例：映画 The Officのような職場のユーモア"
           style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;resize:none;outline:none;box-sizing:border-box;color:#111827;background:white;"
-        >${escapeHtml(state.customInput)}</textarea>
+        >${escapeHtml(state.customTopic)}</textarea>
 
         <button id="customGenerateBtn"
           class="w-full mt-3 py-3 rounded-xl font-semibold text-sm text-white"
-          style="background:${state.customInput.trim() ? '#7c3aed' : '#d1d5db'};"
-          ${state.customInput.trim() ? '' : 'disabled'}>
-          ✨ このシチュエーションで生成
+          style="background:${canGenerate ? '#7c3aed' : '#d1d5db'};"
+          ${canGenerate ? '' : 'disabled'}>
+          ✨ 生成する
         </button>
       </div>
     </div>`;
@@ -547,7 +579,8 @@ function renderEpisode() {
 
         ${ep.segments.map((seg, si) => {
             const speakerIndex = ep.speakers ? ep.speakers.findIndex(s => s.id === seg.speaker) : 0;
-            const borderColor = speakerIndex === 0 ? '#3b82f6' : '#22c55e';
+            const SPEAKER_COLORS = ['#3b82f6', '#22c55e', '#f59e0b'];
+            const borderColor = SPEAKER_COLORS[speakerIndex] || '#3b82f6';
             const highlightedText = buildHighlightedText(seg.text, seg.highlights, si);
             const speaker = ep.speakers ? ep.speakers.find(s => s.id === seg.speaker) : null;
 
@@ -695,50 +728,29 @@ function attachListeners() {
         settingsBtn.addEventListener('click', showSettingsModal);
     }
 
-    // Custom: preset chips
-    document.querySelectorAll('.custom-preset-btn').forEach(btn => {
+    // Custom: format chips
+    document.querySelectorAll('.custom-format-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const preset = CUSTOM_PRESETS[parseInt(btn.dataset.index, 10)];
-            const textarea = document.getElementById('customInputArea');
-            // Toggle: click same preset again to deselect
-            if (state.customInput === preset.text) {
-                state.customInput = '';
-            } else {
-                state.customInput = preset.text;
-            }
-            localStorage.setItem('customInput', state.customInput);
-            if (textarea) textarea.value = state.customInput;
-            // Update chip styles
-            document.querySelectorAll('.custom-preset-btn').forEach(b => {
-                const isActive = CUSTOM_PRESETS[parseInt(b.dataset.index, 10)].text === state.customInput;
+            const fmt = CUSTOM_FORMATS[parseInt(btn.dataset.index, 10)];
+            state.customFormat = state.customFormat === fmt.value ? '' : fmt.value;
+            localStorage.setItem('customFormat', state.customFormat);
+            document.querySelectorAll('.custom-format-btn').forEach(b => {
+                const isActive = CUSTOM_FORMATS[parseInt(b.dataset.index, 10)].value === state.customFormat;
                 b.style.background = isActive ? '#7c3aed' : '#f9fafb';
                 b.style.color = isActive ? 'white' : '#374151';
+                b.style.borderColor = isActive ? '#7c3aed' : '#e5e7eb';
             });
-            // Update generate button
-            const genBtn = document.getElementById('customGenerateBtn');
-            if (genBtn) {
-                genBtn.disabled = !state.customInput.trim();
-                genBtn.style.background = state.customInput.trim() ? '#7c3aed' : '#d1d5db';
-            }
+            updateCustomGenerateBtn();
         });
     });
 
-    // Custom: free text input
-    const customInputArea = document.getElementById('customInputArea');
-    if (customInputArea) {
-        customInputArea.addEventListener('input', () => {
-            state.customInput = customInputArea.value;
-            localStorage.setItem('customInput', state.customInput);
-            // Deselect any active preset
-            document.querySelectorAll('.custom-preset-btn').forEach(b => {
-                b.style.background = '#f9fafb';
-                b.style.color = '#374151';
-            });
-            const genBtn = document.getElementById('customGenerateBtn');
-            if (genBtn) {
-                genBtn.disabled = !state.customInput.trim();
-                genBtn.style.background = state.customInput.trim() ? '#7c3aed' : '#d1d5db';
-            }
+    // Custom: topic free text
+    const customTopicArea = document.getElementById('customTopicArea');
+    if (customTopicArea) {
+        customTopicArea.addEventListener('input', () => {
+            state.customTopic = customTopicArea.value;
+            localStorage.setItem('customTopic', state.customTopic);
+            updateCustomGenerateBtn();
         });
     }
 
@@ -746,12 +758,11 @@ function attachListeners() {
     const customGenerateBtn = document.getElementById('customGenerateBtn');
     if (customGenerateBtn) {
         customGenerateBtn.addEventListener('click', async () => {
-            const text = state.customInput.trim();
-            if (!text) return;
+            if (!state.customFormat && !state.customTopic.trim()) return;
             const card = document.getElementById('customFormCard');
             if (card) showLoading(card);
             try {
-                const ep = await generateEpisode('custom', text);
+                const ep = await generateEpisode('custom', state.customTopic.trim(), state.customFormat);
                 state.episodes['custom'] = ep;
                 localStorage.setItem('episodes', JSON.stringify(state.episodes));
                 state.currentEpisode = ep;
@@ -1007,6 +1018,14 @@ function attachListeners() {
             state.activePhrase = null;
         }
     }, { passive: true });
+}
+
+function updateCustomGenerateBtn() {
+    const btn = document.getElementById('customGenerateBtn');
+    if (!btn) return;
+    const can = !!(state.customFormat || state.customTopic.trim());
+    btn.disabled = !can;
+    btn.style.background = can ? '#7c3aed' : '#d1d5db';
 }
 
 // ===== SETTINGS MODAL =====
