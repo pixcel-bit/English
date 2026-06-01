@@ -93,6 +93,12 @@ const CATEGORIES = [
         emoji: '🤖',
         prompt: 'AI adoption in enterprise, SaaS industry trends, DAP (Digital Adoption Platform) technology, and discussing tech topics professionally'
     },
+    {
+        id: 'custom',
+        label: 'Custom',
+        emoji: '✏️',
+        prompt: ''
+    },
 ];
 
 // ===== STATE =====
@@ -110,6 +116,7 @@ const state = {
     activePhrase: null,
     showTranslations: false,
     savedPhrases: JSON.parse(localStorage.getItem('savedPhrases') || '[]'),
+    customInput: localStorage.getItem('customInput') || '',
 };
 
 // ===== TTS ENGINE =====
@@ -215,8 +222,9 @@ function updatePlayerUI() {
 }
 
 // ===== CLAUDE API =====
-async function generateEpisode(categoryId) {
+async function generateEpisode(categoryId, customText = '') {
     const cat = CATEGORIES.find(c => c.id === categoryId);
+    const topicPrompt = categoryId === 'custom' ? customText : cat.prompt;
 
     const systemPrompt = `You are an English learning content creator for a Japanese business professional.
 The learner is: Male, 34, Customer Success Manager at a SaaS company in Tokyo, targeting TOEIC 700-800 and job interviews at major Japanese companies.
@@ -224,13 +232,13 @@ Learning style: Podcast-style listening during commute and bath time. 2-3 minute
 Always return ONLY valid JSON. No markdown fences, no extra text.`;
 
     const userPrompt = `Create a 2-3 minute Business English learning episode.
-Topic: ${cat.prompt}
+Topic: ${topicPrompt}
 
 Return this exact JSON structure:
 {
   "title": "Specific, engaging episode title",
   "duration": "2 min",
-  "categoryLabel": "${cat.label}",
+  "categoryLabel": "${categoryId === 'custom' ? 'Custom' : cat.label}",
   "speakers": [
     {"id": "A", "name": "Name (Role)", "gender": "male"},
     {"id": "B", "name": "Name (Role)", "gender": "female"}
@@ -407,8 +415,10 @@ function renderHome() {
 
       <!-- Content -->
       <div class="px-4 pt-4 pb-8">
-        ${cached ? renderEpisodeCard(cached) : renderGenerateCard()}
-        ${cached ? `
+        ${state.category === 'custom'
+          ? renderCustomForm()
+          : cached ? renderEpisodeCard(cached) : renderGenerateCard()}
+        ${state.category !== 'custom' && cached ? `
           <button id="regenerateBtn" class="w-full mt-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-500 font-medium active:bg-gray-50">
             🔄 新しいエピソードを生成する
           </button>` : ''}
@@ -417,6 +427,56 @@ function renderHome() {
         <button id="phrasebookBtn" class="w-full mt-4 py-3 rounded-xl border border-amber-200 bg-amber-50 text-sm text-amber-700 font-semibold active:bg-amber-100 flex items-center justify-center gap-2">
           ⭐ フレーズ帳
           ${state.savedPhrases.length > 0 ? `<span style="background:#f59e0b;color:white;font-size:11px;padding:1px 7px;border-radius:99px;">${state.savedPhrases.length}</span>` : ''}
+        </button>
+      </div>
+    </div>`;
+}
+
+const CUSTOM_PRESETS = [
+    { label: '採用面接', text: 'job interview for a Customer Success Manager position at a major Japanese company like Honda. Focus on introducing past CS experience and motivation.' },
+    { label: 'チームMTG', text: 'team meeting in English: sharing project status updates, raising blockers, and aligning on next steps.' },
+    { label: 'プレゼン', text: 'business presentation to English-speaking stakeholders about a new SaaS feature and its ROI.' },
+    { label: '電話応対', text: 'handling an unexpected phone call from an English-speaking enterprise client who has a complaint.' },
+    { label: 'メール返信', text: 'drafting and reviewing professional email replies to an English-speaking client regarding a delayed deliverable.' },
+    { label: '1on1', text: 'one-on-one meeting with an English-speaking manager: discussing performance, goals, and career development.' },
+    { label: '社内提案', text: 'proposing a new CS initiative to leadership in English, including expected impact and required resources.' },
+    { label: 'スモールトーク', text: 'casual small talk and relationship-building conversation with English-speaking colleagues at a business event.' },
+];
+
+function renderCustomForm() {
+    return `
+    <div id="customFormCard" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-5 py-4" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">
+        <p class="text-purple-200 text-xs font-semibold uppercase tracking-widest">✏️ Custom</p>
+        <h2 class="text-white font-bold text-lg mt-1">自由にシチュエーションを設定</h2>
+        <p class="text-purple-200 text-xs mt-1">選択式と自由記述を組み合わせて使えます</p>
+      </div>
+      <div class="p-4">
+
+        <!-- Preset chips -->
+        <p class="text-xs font-semibold text-gray-500 mb-2">よく使うシチュエーション</p>
+        <div class="flex flex-wrap gap-2 mb-4">
+          ${CUSTOM_PRESETS.map((p, i) => `
+            <button class="custom-preset-btn text-xs font-medium px-3 py-1.5 rounded-full border transition-all"
+              data-index="${i}"
+              style="border-color:#e5e7eb;background:${state.customInput === p.text ? '#7c3aed' : '#f9fafb'};color:${state.customInput === p.text ? 'white' : '#374151'};">
+              ${p.label}
+            </button>
+          `).join('')}
+        </div>
+
+        <!-- Free text -->
+        <p class="text-xs font-semibold text-gray-500 mb-2">詳細・自由入力</p>
+        <textarea id="customInputArea" rows="3"
+          placeholder="例：HondaのグローバルチームとのキックオフMTGで自己紹介したい&#10;例：チャーンリスクのある顧客に改善提案を伝えたい"
+          style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;resize:none;outline:none;box-sizing:border-box;color:#111827;background:white;"
+        >${escapeHtml(state.customInput)}</textarea>
+
+        <button id="customGenerateBtn"
+          class="w-full mt-3 py-3 rounded-xl font-semibold text-sm text-white"
+          style="background:${state.customInput.trim() ? '#7c3aed' : '#d1d5db'};"
+          ${state.customInput.trim() ? '' : 'disabled'}>
+          ✨ このシチュエーションで生成
         </button>
       </div>
     </div>`;
@@ -633,6 +693,74 @@ function attachListeners() {
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) {
         settingsBtn.addEventListener('click', showSettingsModal);
+    }
+
+    // Custom: preset chips
+    document.querySelectorAll('.custom-preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const preset = CUSTOM_PRESETS[parseInt(btn.dataset.index, 10)];
+            const textarea = document.getElementById('customInputArea');
+            // Toggle: click same preset again to deselect
+            if (state.customInput === preset.text) {
+                state.customInput = '';
+            } else {
+                state.customInput = preset.text;
+            }
+            localStorage.setItem('customInput', state.customInput);
+            if (textarea) textarea.value = state.customInput;
+            // Update chip styles
+            document.querySelectorAll('.custom-preset-btn').forEach(b => {
+                const isActive = CUSTOM_PRESETS[parseInt(b.dataset.index, 10)].text === state.customInput;
+                b.style.background = isActive ? '#7c3aed' : '#f9fafb';
+                b.style.color = isActive ? 'white' : '#374151';
+            });
+            // Update generate button
+            const genBtn = document.getElementById('customGenerateBtn');
+            if (genBtn) {
+                genBtn.disabled = !state.customInput.trim();
+                genBtn.style.background = state.customInput.trim() ? '#7c3aed' : '#d1d5db';
+            }
+        });
+    });
+
+    // Custom: free text input
+    const customInputArea = document.getElementById('customInputArea');
+    if (customInputArea) {
+        customInputArea.addEventListener('input', () => {
+            state.customInput = customInputArea.value;
+            localStorage.setItem('customInput', state.customInput);
+            // Deselect any active preset
+            document.querySelectorAll('.custom-preset-btn').forEach(b => {
+                b.style.background = '#f9fafb';
+                b.style.color = '#374151';
+            });
+            const genBtn = document.getElementById('customGenerateBtn');
+            if (genBtn) {
+                genBtn.disabled = !state.customInput.trim();
+                genBtn.style.background = state.customInput.trim() ? '#7c3aed' : '#d1d5db';
+            }
+        });
+    }
+
+    // Custom: generate button
+    const customGenerateBtn = document.getElementById('customGenerateBtn');
+    if (customGenerateBtn) {
+        customGenerateBtn.addEventListener('click', async () => {
+            const text = state.customInput.trim();
+            if (!text) return;
+            const card = document.getElementById('customFormCard');
+            if (card) showLoading(card);
+            try {
+                const ep = await generateEpisode('custom', text);
+                state.episodes['custom'] = ep;
+                localStorage.setItem('episodes', JSON.stringify(state.episodes));
+                state.currentEpisode = ep;
+                state.view = 'episode';
+                render();
+            } catch (err) {
+                if (card) showError(card, err.message);
+            }
+        });
     }
 
     // Phrasebook button (home)
