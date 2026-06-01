@@ -755,6 +755,34 @@ function attachListeners() {
 }
 
 // ===== SETTINGS MODAL =====
+const PREVIEW_TEXT = "Hello! I'm your English learning assistant. Let's practice some business English together.";
+
+function previewVoice(selectId, btnId) {
+    const selectEl = document.getElementById(selectId);
+    const btn = document.getElementById(btnId);
+    if (!selectEl) return;
+
+    const voices = getEnglishVoices();
+    const voice = voices.find(v => v.name === selectEl.value);
+
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(PREVIEW_TEXT);
+    utter.lang = 'en-US';
+    utter.rate = state.ttsRate;
+    if (voice) utter.voice = voice;
+
+    if (btn) {
+        btn.textContent = '⏹';
+        btn.style.background = '#ef4444';
+        utter.onend = utter.onerror = () => {
+            btn.textContent = '▶ 試聴';
+            btn.style.background = '#2563eb';
+        };
+    }
+
+    speechSynthesis.speak(utter);
+}
+
 function showSettingsModal() {
     const voices = getEnglishVoices();
 
@@ -766,52 +794,70 @@ function showSettingsModal() {
         `<option value="${escapeHtml(v.name)}" ${selectedName === v.name ? 'selected' : ''}>${escapeHtml(v.name)}</option>`
     ).join('');
 
-    overlay.innerHTML = `
-    <div style="background:white;border-radius:20px 20px 0 0;width:100%;padding:24px 20px 36px;max-height:85vh;overflow-y:auto;box-sizing:border-box;">
-      <h2 style="font-size:17px;font-weight:700;color:#111827;margin:0 0 20px;">⚙️ 設定</h2>
+    const voiceRow = (label, badge, selectId, previewBtnId, selectedName) => `
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:13px;font-weight:600;color:#374151;">${label}</span>
+          <span style="font-size:11px;font-weight:500;color:white;background:${badge === 'A' ? '#3b82f6' : '#22c55e'};padding:1px 8px;border-radius:99px;">${badge}</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="${selectId}"
+            style="flex:1;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;background:white;outline:none;min-width:0;">
+            ${voices.length > 0 ? voiceOptions(selectedName) : '<option>（英語音声なし）</option>'}
+          </select>
+          <button id="${previewBtnId}"
+            style="flex-shrink:0;background:#2563eb;color:white;border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">
+            ▶ 試聴
+          </button>
+        </div>
+      </div>`;
 
-      <div style="margin-bottom:18px;">
+    overlay.innerHTML = `
+    <div style="background:white;border-radius:20px 20px 0 0;width:100%;padding:24px 20px 40px;max-height:88vh;overflow-y:auto;box-sizing:border-box;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+        <h2 style="font-size:17px;font-weight:700;color:#111827;margin:0;">⚙️ 設定</h2>
+        <button id="closeSettingsBtn" style="background:none;border:none;font-size:22px;color:#9ca3af;cursor:pointer;padding:0;line-height:1;">×</button>
+      </div>
+
+      <!-- API Key -->
+      <div style="margin-bottom:22px;">
         <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Anthropic API Key</label>
         <input id="settingsApiKey" type="password" value="${escapeHtml(state.apiKey)}"
           style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:14px;box-sizing:border-box;outline:none;">
       </div>
 
-      <div style="margin-bottom:16px;">
-        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Speaker A の音声</label>
-        <p style="font-size:11px;color:#9ca3af;margin:0 0 6px;">主話者（青）</p>
-        <select id="voiceSelectA"
-          style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;background:white;box-sizing:border-box;outline:none;">
-          ${voiceOptions(state.voiceNameA)}
-        </select>
-      </div>
+      <!-- Divider -->
+      <div style="border-top:1px solid #f3f4f6;margin-bottom:20px;"></div>
+      <p style="font-size:12px;color:#9ca3af;margin:0 0 16px;">音声を選んで「▶ 試聴」で確認できます</p>
 
-      <div style="margin-bottom:24px;">
-        <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Speaker B の音声</label>
-        <p style="font-size:11px;color:#9ca3af;margin:0 0 6px;">対話相手（緑）</p>
-        <select id="voiceSelectB"
-          style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;background:white;box-sizing:border-box;outline:none;">
-          ${voiceOptions(state.voiceNameB)}
-        </select>
-      </div>
+      <!-- Voice A -->
+      ${voiceRow('Speaker A', 'A', 'voiceSelectA', 'previewBtnA', state.voiceNameA)}
+
+      <!-- Voice B -->
+      ${voiceRow('Speaker B', 'B', 'voiceSelectB', 'previewBtnB', state.voiceNameB)}
 
       ${voices.length === 0 ? `
-      <p style="font-size:12px;color:#ef4444;background:#fef2f2;padding:10px 12px;border-radius:8px;margin-bottom:16px;">
-        ⚠️ 英語音声が見つかりません。端末の設定 → アクセシビリティ → 読み上げ → 声 で英語音声をダウンロードしてください。
-      </p>` : ''}
+      <div style="font-size:12px;color:#dc2626;background:#fef2f2;padding:12px;border-radius:10px;margin-bottom:16px;line-height:1.6;">
+        ⚠️ 英語音声が見つかりません。<br>
+        iPhone: 設定 → アクセシビリティ → 読み上げコンテンツ → 声 → English<br>
+        Android: 設定 → ユーザー補助 → テキスト読み上げ → 言語を追加
+      </div>` : ''}
 
       <button id="saveSettingsBtn"
-        style="width:100%;background:#2563eb;color:white;padding:14px;border-radius:12px;font-size:15px;font-weight:600;border:none;cursor:pointer;margin-bottom:8px;">
+        style="width:100%;background:#2563eb;color:white;padding:14px;border-radius:12px;font-size:15px;font-weight:600;border:none;cursor:pointer;">
         保存する
-      </button>
-      <button id="closeSettingsBtn"
-        style="width:100%;background:transparent;color:#6b7280;padding:12px;border-radius:12px;font-size:14px;border:none;cursor:pointer;">
-        キャンセル
       </button>
     </div>`;
 
     document.body.appendChild(overlay);
 
+    // Preview buttons
+    document.getElementById('previewBtnA').addEventListener('click', () => previewVoice('voiceSelectA', 'previewBtnA'));
+    document.getElementById('previewBtnB').addEventListener('click', () => previewVoice('voiceSelectB', 'previewBtnB'));
+
+    // Save
     document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+        speechSynthesis.cancel();
         const newKey = document.getElementById('settingsApiKey').value.trim();
         if (newKey) {
             state.apiKey = newKey;
@@ -824,8 +870,14 @@ function showSettingsModal() {
         overlay.remove();
     });
 
-    document.getElementById('closeSettingsBtn').addEventListener('click', () => overlay.remove());
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    // Close
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+        speechSynthesis.cancel();
+        overlay.remove();
+    });
+    overlay.addEventListener('click', e => {
+        if (e.target === overlay) { speechSynthesis.cancel(); overlay.remove(); }
+    });
 }
 
 // ===== INIT =====
