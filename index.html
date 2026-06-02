@@ -28,16 +28,11 @@
             background: #f8fafc;
             overscroll-behavior: none;
         }
-
-        /* Bottom nav */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            height: var(--nav-h);
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            z-index: 50;
-            padding-bottom: env(safe-area-inset-bottom, 0px);
+            height: var(--nav-h); background: white;
+            border-top: 1px solid #e5e7eb; display: flex;
+            z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px);
         }
         .nav-btn {
             flex: 1; display: flex; flex-direction: column;
@@ -45,353 +40,412 @@
             background: none; border: none; cursor: pointer;
             padding: 8px 4px; gap: 3px;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
         }
         .nav-icon { font-size: 22px; line-height: 1; }
         .nav-label { font-size: 10px; font-weight: 600; }
-
-        /* Progress bar */
-        .progress-bar-track {
-            height: 3px; background: #e5e7eb; border-radius: 99px; overflow: hidden;
-        }
-        .progress-bar-fill {
-            height: 100%; background: var(--primary); border-radius: 99px;
-            transition: width 0.3s ease;
-        }
-
-        /* Phrase highlights */
+        .progress-bar-track { height: 3px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.3s ease; }
         .highlight-phrase {
             background: #fef9c3; border-radius: 4px; padding: 1px 3px;
             cursor: pointer; transition: background 0.15s; display: inline;
             border-bottom: 1.5px solid #fbbf24;
         }
         .highlight-phrase.active { background: #fde68a; }
-
         .phrase-tooltip {
             background: #1e293b; color: white;
             padding: 10px 12px; border-radius: 10px;
             font-size: 13px; line-height: 1.6; margin-top: 8px;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
         .fade-in { animation: fadeIn 0.2s ease; }
-
         @keyframes spin { to { transform: rotate(360deg); } }
         .spinner {
             width: 36px; height: 36px;
             border: 3px solid #e0e7ff; border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto;
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto;
         }
-
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .line-clamp-2 {
-            display: -webkit-box; -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical; overflow: hidden;
-        }
-        .line-clamp-3 {
-            display: -webkit-box; -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical; overflow: hidden;
-        }
-
-        /* Category card */
-        .cat-card {
-            border-radius: 14px; padding: 14px 10px;
-            display: flex; flex-direction: column; align-items: center;
-            gap: 6px; cursor: pointer; border: 2px solid transparent;
-            transition: border-color 0.15s, transform 0.1s;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
-        .cat-card:active { transform: scale(0.96); }
-        .cat-card.active { border-color: var(--primary); background: var(--primary-light); }
-        .cat-emoji { font-size: 26px; }
-        .cat-label { font-size: 11px; font-weight: 700; color: #374151; text-align: center; }
-
-        /* Segment card */
         .seg-card {
             background: white; border-radius: 14px; padding: 16px;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
             margin-bottom: 12px;
         }
         .seg-card.playing { border-color: var(--primary); box-shadow: 0 0 0 2px #e0e7ff; }
-
-        /* Speed pills */
         .speed-pill {
             padding: 6px 18px; border-radius: 99px; font-size: 13px;
             font-weight: 700; border: none; cursor: pointer;
-            transition: background 0.15s, color 0.15s;
         }
-
-        /* Primary button */
         .btn-primary {
-            background: var(--primary); color: white;
-            border-radius: 14px; border: none; cursor: pointer;
-            font-weight: 700; transition: background 0.15s;
+            background: var(--primary); color: white; border-radius: 14px;
+            border: none; cursor: pointer; font-weight: 700;
         }
         .btn-primary:active { background: var(--primary-dark); }
-
-        /* Ghost button */
-        .btn-ghost {
-            background: #f3f4f6; color: #374151;
-            border-radius: 14px; border: none; cursor: pointer;
-            font-weight: 600; transition: background 0.15s;
-        }
-        .btn-ghost:active { background: #e5e7eb; }
-
-        /* Section heading */
-        .section-heading {
-            font-size: 13px; font-weight: 700; color: #6b7280;
-            text-transform: uppercase; letter-spacing: 0.05em;
-            margin-bottom: 10px;
-        }
-
-        /* Card shadow */
         .card { background: white; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+        .scene-card {
+            background: white; border-radius: 14px; padding: 14px 16px;
+            border: 1px solid #e5e7eb; margin-bottom: 10px;
+        }
+        .level-btn {
+            flex: 1; padding: 7px 4px; border-radius: 10px; border: 1.5px solid;
+            font-size: 12px; font-weight: 700; cursor: pointer; text-align: center;
+            transition: all 0.15s;
+        }
+        .level-btn:active { opacity: 0.8; }
     </style>
 </head>
 <body>
 <div id="app"></div>
-
 <script>
-// ===== CONSTANTS =====
-const CATEGORIES = [
-    { id: 'cs',          label: 'CS英語',      emoji: '💼', prompt: 'Customer Success in SaaS: onboarding new clients, churn prevention conversations, QBRs, stakeholder communication, and success planning' },
-    { id: 'intro',       label: '自己紹介',    emoji: '👤', prompt: 'professional self-introduction and job interview English for a Customer Success Manager targeting major Japanese companies like Honda' },
-    { id: 'negotiation', label: 'ビジネス交渉', emoji: '🤝', prompt: 'business negotiation, persuasion, escalation handling, and diplomatic communication in corporate B2B settings' },
-    { id: 'ai',          label: 'AI時事',      emoji: '🤖', prompt: 'AI adoption in enterprise, SaaS industry trends, DAP (Digital Adoption Platform) technology, and discussing tech topics professionally' },
-    { id: 'daily',       label: '日常会話',    emoji: '💬', prompt: 'everyday English conversation: talking about hobbies, weekends, food, weather, family, feelings — natural casual English used between friends' },
-    { id: 'travel',      label: '旅行',        emoji: '✈️', prompt: 'travel English: checking in at airports and hotels, ordering food, asking for directions, sightseeing, dealing with unexpected situations abroad' },
-    { id: 'culture',     label: '映画・カルチャー', emoji: '🎬', prompt: 'casual English inspired by movies, TV shows, and pop culture: expressions, slang, and natural conversations from entertainment media' },
-    { id: 'custom',      label: 'Custom',      emoji: '✏️', prompt: '' },
+// ===== DOMAINS & SCENES =====
+const DOMAINS = [
+    {
+        id: 'business', label: 'ビジネス', emoji: '💼',
+        scenes: [
+            { id: 'b1',  label: '自己紹介・経歴を話す',   prompt: 'professional self-introduction and career history for job interviews at major Japanese companies like Honda, focusing on background, skills, and career goals as a Customer Success Manager' },
+            { id: 'b2',  label: 'アイスブレイク・雑談',   prompt: 'small talk and ice-breaking in a business setting: weekend plans, recent events, sports, or casual office topics' },
+            { id: 'b3',  label: '会議で意見を述べる',     prompt: 'expressing and defending opinions in business meetings, agreeing and disagreeing professionally, facilitating discussion' },
+            { id: 'b4',  label: 'プレゼン・数字を説明する', prompt: 'presenting data, explaining figures and trends, delivering business presentations to stakeholders' },
+            { id: 'b5',  label: '提案・交渉する',         prompt: 'making proposals and negotiating terms in business settings, persuasion, counter-offers, finding common ground' },
+            { id: 'b6',  label: '顧客に説明・提案する',   prompt: 'customer-facing conversations: explaining product features, handling questions, making recommendations to clients in a SaaS context' },
+            { id: 'b7',  label: 'クレーム・問題対処',     prompt: 'handling complaints and problems professionally, de-escalating difficult situations, offering solutions to upset customers or stakeholders' },
+            { id: 'b8',  label: '電話・オンライン会議',   prompt: 'telephone and video conference English: starting calls, clarifying, asking for repetition, wrapping up, dealing with technical issues' },
+            { id: 'b9',  label: 'フィードバックをする・受ける', prompt: 'giving and receiving constructive feedback in a professional environment, performance reviews, coaching conversations' },
+            { id: 'b10', label: 'チームで協力する',       prompt: 'team collaboration: delegating tasks, checking progress, motivating team members, cross-functional communication' },
+        ]
+    },
+    {
+        id: 'daily', label: '日常・社交', emoji: '💬',
+        scenes: [
+            { id: 'd1',  label: '初対面の挨拶',           prompt: 'first-time greetings and introductions in social settings, casual self-introductions, getting to know someone new' },
+            { id: 'd2',  label: '趣味・休日の話',         prompt: 'talking about hobbies, weekend activities, free time, and interests in casual conversation' },
+            { id: 'd3',  label: '家族・友人の話',         prompt: 'talking about family, friendships, and personal stories in casual conversation' },
+            { id: 'd4',  label: '感謝・褒める',           prompt: 'expressing gratitude, giving genuine compliments, acknowledging others\' achievements in natural English' },
+            { id: 'd5',  label: '誰かに頼む',             prompt: 'making polite requests, asking for help or favors, using appropriate politeness in various social situations' },
+            { id: 'd6',  label: '断る・やんわり避ける',   prompt: 'declining invitations and requests politely, making graceful excuses, saying no without offending' },
+            { id: 'd7',  label: '共感する・慰める',       prompt: 'showing empathy, comforting someone in difficulty, active listening and supportive responses' },
+            { id: 'd8',  label: '誘う・予定を決める',     prompt: 'inviting someone out, making plans, coordinating schedules, confirming arrangements' },
+            { id: 'd9',  label: '意見を交わす',           prompt: 'casual discussion and debate on everyday topics, respectfully sharing and challenging opinions' },
+            { id: 'd10', label: 'ユーモア・冗談',         prompt: 'humor, jokes, and playful banter in English: witty exchanges, self-deprecating humor, cultural references' },
+        ]
+    },
+    {
+        id: 'travel', label: '旅行・海外', emoji: '✈️',
+        scenes: [
+            { id: 't1', label: '空港チェックイン・搭乗', prompt: 'airport check-in, security, and boarding: talking to airline staff, luggage and boarding passes' },
+            { id: 't2', label: '機内での会話',           prompt: 'in-flight conversations with crew and passengers: ordering meals, asking for assistance, small talk' },
+            { id: 't3', label: 'ホテルのチェックイン',   prompt: 'hotel check-in and check-out, requesting amenities, handling reservation issues, asking about facilities' },
+            { id: 't4', label: 'レストランで注文する',   prompt: 'ordering food and drinks, asking about menu items, dietary restrictions, handling the bill' },
+            { id: 't5', label: '観光・道を聞く',         prompt: 'asking for and giving directions, navigating tourist attractions, asking locals for recommendations' },
+            { id: 't6', label: 'ショッピング',           prompt: 'shopping: asking about products, sizes, prices, making purchases, handling returns' },
+            { id: 't7', label: 'トラブル対応',           prompt: 'handling travel emergencies: lost luggage, medical issues, payment problems, asking for help' },
+            { id: 't8', label: '現地の人との交流',       prompt: 'casual conversations with locals: cultural exchange, learning about customs, genuine friendly interaction' },
+        ]
+    },
+    {
+        id: 'culture', label: 'カルチャー', emoji: '🎬',
+        scenes: [
+            { id: 'c1', label: '映画・ドラマの話をする', prompt: 'discussing movies and TV shows: recommendations, plot summaries, opinions, favorite characters' },
+            { id: 'c2', label: '音楽・スポーツの話',     prompt: 'talking about music preferences, sports events and teams, concerts, games' },
+            { id: 'c3', label: 'ニュース・社会問題',     prompt: 'discussing current events and social issues: informed opinions, different perspectives, news vocabulary' },
+            { id: 'c4', label: 'テクノロジー・SNS',     prompt: 'conversations about technology, social media, AI trends, apps and gadgets' },
+            { id: 'c5', label: '食文化・グルメ',         prompt: 'food culture discussions: describing dishes, sharing food experiences, restaurant recommendations' },
+            { id: 'c6', label: '異文化・価値観',         prompt: 'cross-cultural conversations: cultural differences, values, traditions between Japan and other countries' },
+        ]
+    },
+    {
+        id: 'toeic', label: 'TOEIC対策', emoji: '📝',
+        scenes: [
+            { id: 'to1', label: '社内連絡・アナウンス',   prompt: 'internal company announcements: staff meetings, policy changes, office memos (TOEIC Part 4 style short talks)' },
+            { id: 'to2', label: '採用・人事・評価',       prompt: 'HR conversations: job interviews, performance reviews, promotion discussions, onboarding (TOEIC Part 3/4)' },
+            { id: 'to3', label: '取引・注文・契約',       prompt: 'business transactions: placing orders, contract negotiations, discussing terms and conditions (TOEIC Part 3/4)' },
+            { id: 'to4', label: '設備・オフィス管理',     prompt: 'office and facility management: equipment maintenance, supplies, IT support requests (TOEIC Part 3)' },
+            { id: 'to5', label: 'イベント・会議の段取り', prompt: 'event and meeting planning: scheduling, venue arrangements, agenda setting, logistics (TOEIC Part 3/4)' },
+            { id: 'to6', label: '財務・予算',             prompt: 'financial discussions: budget reviews, expense reports, quarterly results, cost proposals (TOEIC Part 3/4)' },
+            { id: 'to7', label: '出張・旅行手配',         prompt: 'business travel arrangements: booking flights and hotels, itineraries, expense policies (TOEIC Part 3/4)' },
+            { id: 'to8', label: '製造・物流・配送',       prompt: 'manufacturing and logistics: production schedules, shipping and delivery, quality control (TOEIC Part 4)' },
+        ]
+    },
 ];
+
+const LEVELS = [
+    { id: 'basic',        label: '初級', emoji: '🟢', toeic: '〜550',   color: '#10b981', bg: '#ecfdf5', border: '#6ee7b7' },
+    { id: 'intermediate', label: '中級', emoji: '🟡', toeic: '550〜730', color: '#f59e0b', bg: '#fffbeb', border: '#fcd34d' },
+    { id: 'advanced',     label: '上級', emoji: '🔴', toeic: '730〜',   color: '#ef4444', bg: '#fef2f2', border: '#fca5a5' },
+];
+
+const LEVEL_PROMPTS = {
+    basic:        'Difficulty: BEGINNER. Use only common everyday vocabulary (1000-2000 word range), short simple sentences (under 15 words each), slow and clear pronunciation pace, and basic grammar structures. CEFR A2-B1.',
+    intermediate: 'Difficulty: INTERMEDIATE. Use professional and business vocabulary, varied sentence structures including relative clauses and conditionals, natural conversational pace, and some idiomatic expressions. CEFR B1-B2.',
+    advanced:     'Difficulty: ADVANCED. Use sophisticated vocabulary, idiomatic expressions, complex grammar, fast natural native-speaker pace, cultural references, humor, and nuanced meaning. CEFR B2-C1.',
+};
 
 const CUSTOM_FORMATS = [
-    { label: '2人の対話',     value: 'a realistic back-and-forth dialogue between exactly 2 speakers (A and B)',                      speakers: 2 },
-    { label: '複数人の会話',  value: 'a group conversation with 3 speakers (A, B, and C) naturally talking together',                speakers: 3 },
-    { label: 'スピーチ',      value: 'a monologue speech delivered by a single speaker (A only) to an audience',                     speakers: 1 },
-    { label: 'ポッドキャスト', value: 'a podcast-style narration by a single host (A only) explaining a topic in an engaging way',  speakers: 1 },
-    { label: 'インタビュー',  value: 'an interview format where A is the interviewer and B is the guest being interviewed',          speakers: 2 },
-    { label: 'ニュース解説',  value: 'a news broadcast style with anchor A introducing the story and reporter B adding commentary', speakers: 2 },
+    { label: '2人の対話',      value: 'a realistic back-and-forth dialogue between exactly 2 speakers (A and B)',                     speakers: 2 },
+    { label: '複数人の会話',   value: 'a group conversation with 3 speakers (A, B, and C) naturally talking together',               speakers: 3 },
+    { label: 'スピーチ',       value: 'a monologue speech delivered by a single speaker (A only) to an audience',                    speakers: 1 },
+    { label: 'ポッドキャスト', value: 'a podcast-style narration by a single host (A only) explaining a topic engagingly',          speakers: 1 },
+    { label: 'インタビュー',   value: 'an interview where A is the interviewer and B is the guest being interviewed',               speakers: 2 },
+    { label: 'ニュース解説',   value: 'a news broadcast with anchor A introducing and reporter B adding commentary',                speakers: 2 },
 ];
 
-const SPEAKER_COLORS = ['#4f46e5', '#10b981', '#f59e0b'];
-
-// Pitch and rate per speaker — ensures audible difference even on limited-voice devices
+const SPEAKER_COLORS   = ['#4f46e5', '#10b981', '#f59e0b'];
 const SPEAKER_SETTINGS = {
-    'A': { pitch: 1.0,  rateMult: 1.0  },  // normal male
-    'B': { pitch: 1.22, rateMult: 1.03  },  // clearly higher / female-leaning
-    'C': { pitch: 0.76, rateMult: 0.96  },  // distinctly deeper / slower
+    'A': { pitch: 1.0,  rateMult: 1.0  },
+    'B': { pitch: 1.22, rateMult: 1.03 },
+    'C': { pitch: 0.76, rateMult: 0.96 },
 };
 
 // ===== STATE =====
 const state = {
-    view: localStorage.getItem('apiKey') ? 'main' : 'setup',
-    bottomTab: 'today',
-    apiKey: localStorage.getItem('apiKey') || '',
-    category: localStorage.getItem('lastCategory') || 'cs',
-    lastCategory: localStorage.getItem('lastCategory') || 'cs',
-    episodes: JSON.parse(localStorage.getItem('episodes') || '{}'),
+    view:           localStorage.getItem('apiKey') ? 'main' : 'setup',
+    bottomTab:      'today',
+    apiKey:         localStorage.getItem('apiKey') || '',
+    // Learn navigation
+    selectedDomain: localStorage.getItem('selectedDomain') || 'business',
+    selectedScene:  null,  // { domainId, sceneId }
+    selectedLevel:  'intermediate',
+    selectedFormat: '',
+    showFormatPanel: false,
+    showAddSceneForm: false,
+    addSceneFormDomain: null,
+    // Data
+    episodes:       JSON.parse(localStorage.getItem('episodes') || '{}'),
+    sceneProgress:  JSON.parse(localStorage.getItem('sceneProgress') || '{}'),
+    userScenes:     JSON.parse(localStorage.getItem('userScenes') || '{}'),
+    savedPhrases:   JSON.parse(localStorage.getItem('savedPhrases') || '[]'),
+    // Playback
+    ttsRate:        parseFloat(localStorage.getItem('ttsRate') || '1.0'),
+    voiceNameA:     localStorage.getItem('voiceNameA') || '',
+    voiceNameB:     localStorage.getItem('voiceNameB') || '',
+    isPlaying:      false,
+    isPaused:       false,
     currentEpisode: null,
-    ttsRate: parseFloat(localStorage.getItem('ttsRate') || '1.0'),
-    voiceNameA: localStorage.getItem('voiceNameA') || '',
-    voiceNameB: localStorage.getItem('voiceNameB') || '',
-    isPlaying: false,
-    isPaused: false,
-    activePhrase: null,
-    showTranslations: false,
-    savedPhrases: JSON.parse(localStorage.getItem('savedPhrases') || '[]'),
-    customFormat: localStorage.getItem('customFormat') || '',
-    customTopic: localStorage.getItem('customTopic') || '',
-    categoryOptions: JSON.parse(localStorage.getItem('categoryOptions') || '{}'),
-    optionsPanelOpen: false,
+    // UI
+    activePhrase:      null,
+    showTranslations:  false,
 };
 
 // ===== TTS ENGINE =====
-let ttsSegments = [];
-let ttsIndex = 0;
-let ttsPauseTimer = null;
+let ttsSegments = [], ttsIndex = 0, ttsPauseTimer = null;
 
 const VOICE_PRIORITY = [
-    'Google US English', 'Google UK English Female', 'Google UK English Male',
-    'Samantha', 'Karen', 'Daniel', 'Moira', 'Fiona', 'Victoria',
-    'Google', 'Natural', 'Enhanced', 'Premium',
+    'Google US English','Google UK English Female','Google UK English Male',
+    'Samantha','Karen','Daniel','Moira','Fiona','Victoria',
+    'Google','Natural','Enhanced','Premium',
 ];
 
-function getEnglishVoices() {
-    return speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-}
+function getEnglishVoices() { return speechSynthesis.getVoices().filter(v => v.lang.startsWith('en')); }
 
 function getBestVoice(preferFemale = false) {
     const voices = getEnglishVoices();
-    if (voices.length === 0) return null;
+    if (!voices.length) return null;
     for (const pref of VOICE_PRIORITY) {
-        const match = voices.find(v => {
+        const m = voices.find(v => {
             if (!v.name.includes(pref.split(' ')[0])) return false;
-            if (preferFemale) {
+            if (preferFemale)
                 return v.name.toLowerCase().includes('female') ||
                     ['Samantha','Karen','Moira','Fiona','Victoria','Google UK English Female'].some(n => v.name.includes(n));
-            }
             return true;
         });
-        if (match) return match;
+        if (m) return m;
     }
     return preferFemale && voices.length > 1 ? voices[1] : voices[0];
 }
 
 function getVoice(speakerId) {
     const voices = getEnglishVoices();
-    if (voices.length === 0) return null;
-    const effectiveId = speakerId === 'C' ? 'A' : speakerId;
-    const savedName = effectiveId === 'B' ? state.voiceNameB : state.voiceNameA;
-    if (savedName) {
-        const found = voices.find(v => v.name === savedName);
-        if (found) return found;
-    }
-    return getBestVoice(effectiveId === 'B');
+    if (!voices.length) return null;
+    const eid = speakerId === 'C' ? 'A' : speakerId;
+    const saved = eid === 'B' ? state.voiceNameB : state.voiceNameA;
+    if (saved) { const f = voices.find(v => v.name === saved); if (f) return f; }
+    return getBestVoice(eid === 'B');
 }
 
 function initDefaultVoices() {
-    if (!state.voiceNameA) {
-        const v = getBestVoice(false);
-        if (v) { state.voiceNameA = v.name; localStorage.setItem('voiceNameA', v.name); }
-    }
-    if (!state.voiceNameB) {
-        const v = getBestVoice(true);
-        if (v) { state.voiceNameB = v.name; localStorage.setItem('voiceNameB', v.name); }
-    }
+    if (!state.voiceNameA) { const v = getBestVoice(false); if (v) { state.voiceNameA = v.name; localStorage.setItem('voiceNameA', v.name); } }
+    if (!state.voiceNameB) { const v = getBestVoice(true);  if (v) { state.voiceNameB = v.name; localStorage.setItem('voiceNameB', v.name); } }
 }
 
 function ttsSpeak(episode) {
     clearTimeout(ttsPauseTimer);
     speechSynthesis.cancel();
     ttsSegments = episode.segments;
-    ttsIndex = 0;
-    state.isPlaying = true;
-    state.isPaused = false;
+    ttsIndex = 0; state.isPlaying = true; state.isPaused = false;
     ttsPlayNext();
 }
 
 function ttsPlayNext() {
     updateProgressBar();
     if (ttsIndex >= ttsSegments.length) {
-        state.isPlaying = false;
-        state.isPaused = false;
-        updatePlayerUI();
-        updateProgressBar();
-        return;
+        state.isPlaying = false; state.isPaused = false;
+        updatePlayerUI(); updateProgressBar(); return;
     }
     const seg = ttsSegments[ttsIndex];
     const settings = SPEAKER_SETTINGS[seg.speaker] || SPEAKER_SETTINGS['A'];
-
     const utter = new SpeechSynthesisUtterance(seg.text);
     utter.lang = 'en-US';
-    utter.rate = state.ttsRate * settings.rateMult;
+    utter.rate  = state.ttsRate * settings.rateMult;
     utter.pitch = settings.pitch;
-
     const voice = getVoice(seg.speaker);
     if (voice) utter.voice = voice;
-
     highlightSegment(ttsIndex);
-
     utter.onend = () => {
-        const nextSeg = ttsSegments[ttsIndex + 1];
-        // Longer pause on speaker change, shorter pause within same speaker
-        const speakerChanged = nextSeg && nextSeg.speaker !== seg.speaker;
-        const pauseMs = speakerChanged ? 750 : 380;
+        const next = ttsSegments[ttsIndex + 1];
+        const changed = next && next.speaker !== seg.speaker;
         ttsIndex++;
-        ttsPauseTimer = setTimeout(() => {
-            if (state.isPlaying) ttsPlayNext();
-        }, pauseMs);
+        ttsPauseTimer = setTimeout(() => { if (state.isPlaying) ttsPlayNext(); }, changed ? 750 : 380);
     };
     utter.onerror = () => { state.isPlaying = false; updatePlayerUI(); };
     speechSynthesis.speak(utter);
 }
 
 function highlightSegment(idx) {
-    document.querySelectorAll('.seg-card').forEach((el, i) => {
-        el.classList.toggle('playing', i === idx);
-    });
+    document.querySelectorAll('.seg-card').forEach((el, i) => el.classList.toggle('playing', i === idx));
 }
-
 function updateProgressBar() {
     const fill = document.getElementById('progressFill');
-    if (!fill) return;
-    const pct = ttsSegments.length > 0 ? (ttsIndex / ttsSegments.length) * 100 : 0;
-    fill.style.width = pct + '%';
+    if (fill) fill.style.width = (ttsSegments.length > 0 ? (ttsIndex / ttsSegments.length) * 100 : 0) + '%';
 }
-
 function updatePlayerUI() {
     const btn = document.getElementById('playBtn');
     if (btn) btn.innerHTML = state.isPlaying ? '⏸' : '▶';
-    const label = document.getElementById('playBtnLabel');
-    if (label) label.textContent = state.isPlaying ? '一時停止' : '再生';
+    const lbl = document.getElementById('playBtnLabel');
+    if (lbl) lbl.textContent = state.isPlaying ? '一時停止' : '再生';
+}
+
+// ===== HELPERS =====
+function escapeHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function getAllPhrases(ep) {
+    const out = [];
+    ep.segments.forEach(seg => (seg.highlights||[]).forEach(h => out.push(h)));
+    return out;
+}
+function buildHighlightedText(text, highlights, segIndex) {
+    if (!highlights?.length) return escapeHtml(text);
+    const sorted = [...highlights]
+        .map((h,i) => ({...h, idx:i, pos:text.indexOf(h.phrase)}))
+        .filter(h => h.pos !== -1).sort((a,b) => a.pos - b.pos);
+    let result = '', cursor = 0;
+    sorted.forEach(h => {
+        if (h.pos < cursor) return;
+        result += escapeHtml(text.slice(cursor, h.pos));
+        result += `<span class="highlight-phrase" data-seg="${segIndex}" data-hi="${h.idx}" data-phrase="${encodeURIComponent(h.phrase)}" data-explanation="${encodeURIComponent(h.explanation)}">${escapeHtml(h.phrase)}</span>`;
+        cursor = h.pos + h.phrase.length;
+    });
+    return result + escapeHtml(text.slice(cursor));
+}
+
+function getDomain(domainId)  { return DOMAINS.find(d => d.id === domainId); }
+function getAllScenes(domainId) {
+    const d = getDomain(domainId);
+    if (!d) return [];
+    return [...d.scenes, ...(state.userScenes[domainId] || [])];
+}
+function getScene(domainId, sceneId) { return getAllScenes(domainId).find(s => s.id === sceneId); }
+function episodeKey(domainId, sceneId, levelId) { return `${domainId}_${sceneId}_${levelId}`; }
+function progressKey(domainId, sceneId, levelId) { return `${domainId}_${sceneId}_${levelId}`; }
+
+function isLevelUnlocked(domainId, sceneId, levelId) {
+    if (levelId !== 'advanced') return true;
+    return !!(state.sceneProgress[progressKey(domainId, sceneId, 'intermediate')]);
+}
+
+function getRecommended(domainId) {
+    const scenes = getAllScenes(domainId);
+    for (const s of scenes) {
+        if (!state.sceneProgress[progressKey(domainId, s.id, 'intermediate')])
+            return { sceneId: s.id, levelId: 'intermediate' };
+    }
+    for (const s of scenes) {
+        if (isLevelUnlocked(domainId, s.id, 'advanced') &&
+            !state.sceneProgress[progressKey(domainId, s.id, 'advanced')])
+            return { sceneId: s.id, levelId: 'advanced' };
+    }
+    return null;
+}
+
+function getTotalProgress() {
+    const attempted = new Set(Object.keys(state.sceneProgress)).size;
+    const total = DOMAINS.reduce((n, d) => n + d.scenes.length + (state.userScenes[d.id]||[]).length, 0);
+    return { attempted, total };
+}
+
+function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+function getLastEpisode() {
+    const keys = Object.keys(state.episodes);
+    if (!keys.length) return null;
+    return keys.reduce((best, k) => {
+        const ep = state.episodes[k];
+        if (!best) return ep;
+        return new Date(ep.generatedAt) > new Date(best.generatedAt) ? ep : best;
+    }, null);
 }
 
 // ===== CLAUDE API =====
-async function generateEpisode(categoryId, customTopic = '', customFormat = '', options = {}) {
-    const cat = CATEGORIES.find(c => c.id === categoryId);
-    let topicPrompt = cat.prompt;
-    if (categoryId === 'custom') {
-        const parts = [];
-        if (customFormat) parts.push(`Format: ${customFormat}`);
-        if (customTopic) parts.push(`Topic: ${customTopic}`);
-        topicPrompt = parts.join('. ');
-    } else {
-        if (options.format) topicPrompt += `. Format: ${options.format}`;
-        if (options.instructions) topicPrompt += `. Additional requirements: ${options.instructions}`;
-    }
-    const activeFormat = categoryId === 'custom' ? customFormat : (options.format || '');
-    const formatObj = CUSTOM_FORMATS.find(f => f.value === activeFormat);
+async function generateEpisode({ domainId, sceneId, levelId, format = '' }) {
+    const scene = getScene(domainId, sceneId);
+    const level = LEVELS.find(l => l.id === levelId);
+    const levelPrompt = LEVEL_PROMPTS[levelId];
+    const domain = getDomain(domainId);
+
+    const formatObj = CUSTOM_FORMATS.find(f => f.value === format);
     const speakerCount = formatObj ? formatObj.speakers : 2;
 
-    const systemPrompt = `You are an English learning content creator for a Japanese business professional.
-The learner is: Male, 34, Customer Success Manager at a SaaS company in Tokyo, targeting TOEIC 700-800 and job interviews at major Japanese companies.
-Learning style: Podcast-style listening during commute and bath time. 2-3 minutes per episode.
-Always return ONLY valid JSON. No markdown fences, no extra text.`;
+    let topicPrompt = scene.prompt;
+    if (format) topicPrompt += `. Conversation format: ${format}`;
+    if (domainId === 'toeic') topicPrompt += '. Model this closely after actual TOEIC Part 3 or Part 4 style conversations.';
 
     const speakersJson = speakerCount === 1
         ? '[{"id":"A","name":"Name (Role)","gender":"male"}]'
         : speakerCount === 3
-        ? '[{"id":"A","name":"Name (Role)","gender":"male"},{"id":"B","name":"Name (Role)","gender":"female"},{"id":"C","name":"Name (Role)","gender":"male"}]'
-        : '[{"id":"A","name":"Name (Role)","gender":"male"},{"id":"B","name":"Name (Role)","gender":"female"}]';
+        ? '[{"id":"A","name":"Name","gender":"male"},{"id":"B","name":"Name","gender":"female"},{"id":"C","name":"Name","gender":"male"}]'
+        : '[{"id":"A","name":"Name","gender":"male"},{"id":"B","name":"Name","gender":"female"}]';
+
+    const systemPrompt = `You are an English learning content creator for a Japanese business professional.
+Learner profile: Male, 34, Customer Success Manager at a Tokyo SaaS company. TOEIC 700-800 target, job-change goal to Honda. Learns via podcast listening during commute and bath.
+Always return ONLY valid JSON. No markdown fences, no extra text.`;
 
     const userPrompt = `Create a 2-3 minute English learning episode.
-Topic: ${topicPrompt}
+Topic/Scene: ${topicPrompt}
+${levelPrompt}
 
-Return this exact JSON structure:
+Return this exact JSON:
 {
-  "title": "Specific, engaging episode title",
+  "title": "Specific engaging title",
   "duration": "2 min",
-  "categoryLabel": "${categoryId === 'custom' ? 'Custom' : cat.label}",
+  "domainLabel": "${domain.label}",
+  "sceneLabel": "${scene.label}",
+  "levelLabel": "${level.label}",
   "speakers": ${speakersJson},
   "segments": [
     {
       "speaker": "A",
-      "text": "Natural spoken English. 2-4 sentences per segment.",
-      "translation": "textの自然な日本語訳",
+      "text": "Natural spoken English matching the difficulty level. 2-4 sentences.",
+      "translation": "自然な日本語訳",
       "highlights": [
         {
-          "phrase": "exact phrase from the text above",
-          "explanation": "日本語で意味・ニュアンス・使い方を2〜3文で説明"
+          "phrase": "exact verbatim phrase from the text",
+          "explanation": "日本語で意味・ニュアンス・使い方を2〜3文で"
         }
       ]
     }
   ]
 }
-
 Rules:
-- 4-6 segments total, realistic dialogue
-- 2-3 highlights per segment with practical phrases
+- 4-6 segments, 2-3 highlights per segment
 - Phrases must be verbatim substrings of the segment text
-- Japanese explanations should be practical with usage notes
-- translation must be natural Japanese`;
+- Japanese explanations: practical, include usage notes
+- Translation: natural Japanese, not word-for-word`;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -402,8 +456,7 @@ Rules:
             'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: JSON.stringify({
-            model: 'claude-sonnet-4-6',
-            max_tokens: 4096,
+            model: 'claude-sonnet-4-6', max_tokens: 4096,
             system: systemPrompt,
             messages: [{ role: 'user', content: userPrompt }]
         })
@@ -413,78 +466,23 @@ Rules:
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error?.message || `APIエラー (${res.status})`);
     }
-
     const data = await res.json();
     const raw = data.content[0].text;
     const match = raw.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('レスポンスのパースに失敗しました。もう一度お試しください。');
-
-    let episode;
-    try { episode = JSON.parse(match[0]); }
-    catch (e) { throw new Error('JSONのパースに失敗しました。もう一度お試しください。'); }
-    episode.generatedAt = new Date().toISOString();
-    return episode;
-}
-
-// ===== HELPERS =====
-function getAllPhrases(ep) {
-    const out = [];
-    ep.segments.forEach(seg => (seg.highlights || []).forEach(h => out.push(h)));
-    return out;
-}
-
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function buildHighlightedText(text, highlights, segIndex) {
-    if (!highlights || highlights.length === 0) return escapeHtml(text);
-    const sorted = [...highlights]
-        .map((h, i) => ({ ...h, idx: i, pos: text.indexOf(h.phrase) }))
-        .filter(h => h.pos !== -1)
-        .sort((a, b) => a.pos - b.pos);
-    let result = '', cursor = 0;
-    sorted.forEach(h => {
-        if (h.pos < cursor) return;
-        result += escapeHtml(text.slice(cursor, h.pos));
-        result += `<span class="highlight-phrase" data-seg="${segIndex}" data-hi="${h.idx}" data-phrase="${encodeURIComponent(h.phrase)}" data-explanation="${encodeURIComponent(h.explanation)}">${escapeHtml(h.phrase)}</span>`;
-        cursor = h.pos + h.phrase.length;
-    });
-    result += escapeHtml(text.slice(cursor));
-    return result;
-}
-
-function getCategoryOpts() {
-    return state.categoryOptions[state.category] || { format: '', instructions: '' };
-}
-
-function saveCategoryOpts(opts) {
-    state.categoryOptions[state.category] = opts;
-    localStorage.setItem('categoryOptions', JSON.stringify(state.categoryOptions));
-}
-
-function getLastEpisode() {
-    const keys = Object.keys(state.episodes);
-    if (keys.length === 0) return null;
-    return keys.reduce((best, k) => {
-        const ep = state.episodes[k];
-        if (!best) return ep;
-        return new Date(ep.generatedAt) > new Date(best.generatedAt) ? ep : best;
-    }, null);
-}
-
-function formatDate(isoStr) {
-    if (!isoStr) return '';
-    const d = new Date(isoStr);
-    return `${d.getMonth() + 1}/${d.getDate()}`;
+    if (!match) throw new Error('レスポンスのパースに失敗しました');
+    let ep;
+    try { ep = JSON.parse(match[0]); } catch (e) { throw new Error('JSONのパースに失敗しました'); }
+    ep.generatedAt = new Date().toISOString();
+    ep.domainId = domainId; ep.sceneId = sceneId; ep.levelId = levelId;
+    return ep;
 }
 
 // ===== RENDER =====
 function render() {
     const app = document.getElementById('app');
-    if (state.view === 'setup')   app.innerHTML = renderSetup();
+    if      (state.view === 'setup')   app.innerHTML = renderSetup();
     else if (state.view === 'main')    app.innerHTML = renderMain();
+    else if (state.view === 'scene')   app.innerHTML = renderSceneView();
     else if (state.view === 'episode') app.innerHTML = renderEpisode();
     attachListeners();
 }
@@ -501,13 +499,10 @@ function renderSetup() {
         </div>
         <div class="card" style="padding:24px;">
           <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:8px;">Anthropic API Key</label>
-          <input id="apiKeyInput" type="password" placeholder="sk-ant-..."
-            value="${escapeHtml(state.apiKey)}"
+          <input id="apiKeyInput" type="password" placeholder="sk-ant-..." value="${escapeHtml(state.apiKey)}"
             style="width:100%;border:1.5px solid #d1d5db;border-radius:12px;padding:12px 14px;font-size:14px;outline:none;color:#111827;">
           <p style="font-size:12px;color:#9ca3af;margin:6px 0 0;">キーはこの端末にのみ保存されます</p>
-          <button id="saveKeyBtn" class="btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;">
-            はじめる →
-          </button>
+          <button id="saveKeyBtn" class="btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;">はじめる →</button>
         </div>
         <p style="text-align:center;font-size:12px;color:#9ca3af;margin-top:16px;">
           APIキーは <span style="color:var(--primary);">console.anthropic.com</span> で取得
@@ -516,14 +511,13 @@ function renderSetup() {
     </div>`;
 }
 
-// --- Main (with bottom nav) ---
+// --- Main ---
 function renderMain() {
     let content = '';
-    if (state.bottomTab === 'today')    content = renderTodayTab();
+    if      (state.bottomTab === 'today')    content = renderTodayTab();
     else if (state.bottomTab === 'learn')    content = renderLearnTab();
     else if (state.bottomTab === 'phrases')  content = renderPhrasesTab();
     else if (state.bottomTab === 'settings') content = renderSettingsTab();
-
     return `
     <div style="min-height:100vh;background:#f8fafc;">
       <div style="padding-bottom:var(--nav-h);">${content}</div>
@@ -533,9 +527,9 @@ function renderMain() {
 
 function renderBottomNav() {
     const tabs = [
-        { id: 'today',    icon: '🏠', label: '今日' },
-        { id: 'learn',    icon: '📚', label: '学ぶ' },
-        { id: 'phrases',  icon: '⭐', label: 'フレーズ帳' },
+        { id: 'today', icon: '🏠', label: '今日' },
+        { id: 'learn', icon: '📚', label: '学ぶ' },
+        { id: 'phrases', icon: '⭐', label: 'フレーズ帳' },
         { id: 'settings', icon: '⚙️', label: '設定' },
     ];
     return `
@@ -543,10 +537,9 @@ function renderBottomNav() {
       ${tabs.map(t => {
         const active = state.bottomTab === t.id;
         const badge = t.id === 'phrases' && state.savedPhrases.length > 0
-            ? `<span style="position:absolute;top:4px;right:calc(50% - 18px);background:var(--red);color:white;font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px;">${state.savedPhrases.length}</span>`
-            : '';
+            ? `<span style="position:absolute;top:4px;right:calc(50% - 18px);background:var(--red);color:white;font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px;">${state.savedPhrases.length}</span>` : '';
         return `
-        <button class="nav-btn bottom-tab-btn" data-tab="${t.id}" style="position:relative;">
+        <button class="nav-btn bottom-tab-btn" data-tab="${t.id}">
           ${badge}
           <span class="nav-icon">${t.icon}</span>
           <span class="nav-label" style="color:${active ? 'var(--primary)' : '#9ca3af'};">${t.label}</span>
@@ -559,201 +552,360 @@ function renderBottomNav() {
 // --- Today Tab ---
 function renderTodayTab() {
     const today = new Date();
-    const dateStr = `${today.getMonth() + 1}月${today.getDate()}日`;
-    const hour = today.getHours();
-    const greeting = hour < 12 ? 'おはようございます' : hour < 18 ? 'こんにちは' : 'こんばんは';
+    const dateStr = `${today.getMonth()+1}月${today.getDate()}日`;
+    const h = today.getHours();
+    const greeting = h < 12 ? 'おはようございます' : h < 18 ? 'こんにちは' : 'こんばんは';
     const lastEp = getLastEpisode();
-    const episodeCount = Object.keys(state.episodes).length;
+    const { attempted, total } = getTotalProgress();
 
     return `
     <div class="fade-in">
-      <!-- Header -->
-      <div style="background:linear-gradient(135deg,var(--primary),#6d28d9);padding:48px 20px 24px;">
+      <div style="background:linear-gradient(135deg,var(--primary),#6d28d9);padding:48px 20px 28px;">
         <p style="color:#c7d2fe;font-size:13px;font-weight:600;">${dateStr} ${greeting}</p>
-        <h1 style="color:white;font-size:22px;font-weight:800;margin:4px 0 0;">EigoDaily</h1>
-        ${episodeCount > 0 ? `<p style="color:#c7d2fe;font-size:12px;margin-top:6px;">📖 これまでに ${episodeCount} エピソード学習</p>` : ''}
+        <h1 style="color:white;font-size:22px;font-weight:800;margin:4px 0 12px;">EigoDaily</h1>
+        <div style="display:flex;gap:16px;">
+          <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;flex:1;text-align:center;">
+            <p style="color:white;font-size:22px;font-weight:800;margin:0;">${attempted}</p>
+            <p style="color:#c7d2fe;font-size:11px;margin:2px 0 0;">体験済みシーン</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;flex:1;text-align:center;">
+            <p style="color:white;font-size:22px;font-weight:800;margin:0;">${total}</p>
+            <p style="color:#c7d2fe;font-size:11px;margin:2px 0 0;">総シーン数</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;flex:1;text-align:center;">
+            <p style="color:white;font-size:22px;font-weight:800;margin:0;">${state.savedPhrases.length}</p>
+            <p style="color:#c7d2fe;font-size:11px;margin:2px 0 0;">保存フレーズ</p>
+          </div>
+        </div>
       </div>
 
-      <div style="padding:0 16px 20px;margin-top:-12px;">
-
-        <!-- Featured episode or CTA -->
+      <div style="padding:0 16px 24px;margin-top:-12px;">
         ${lastEp ? `
-        <div class="card fade-in" style="padding:0;overflow:hidden;margin-bottom:20px;">
-          <div style="background:linear-gradient(135deg,#1e1b4b,var(--primary));padding:18px 20px 14px;">
-            <p style="color:#a5b4fc;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">最近のエピソード</p>
-            <h2 style="color:white;font-size:16px;font-weight:800;margin:6px 0 4px;line-height:1.3;">${escapeHtml(lastEp.title)}</h2>
-            <p style="color:#a5b4fc;font-size:12px;">⏱ ${lastEp.duration || '2 min'} &nbsp;•&nbsp; ${escapeHtml(lastEp.categoryLabel || '')}</p>
+        <div class="card fade-in" style="overflow:hidden;margin-bottom:20px;">
+          <div style="background:linear-gradient(135deg,#1e1b4b,var(--primary));padding:16px 20px 12px;">
+            <p style="color:#a5b4fc;font-size:11px;font-weight:700;text-transform:uppercase;margin:0;">
+              ${escapeHtml(lastEp.domainLabel||'')} · ${escapeHtml(lastEp.sceneLabel||'')}
+            </p>
+            <h2 style="color:white;font-size:16px;font-weight:800;margin:4px 0 4px;line-height:1.3;">${escapeHtml(lastEp.title)}</h2>
+            <p style="color:#a5b4fc;font-size:11px;margin:0;">${escapeHtml(lastEp.levelLabel||'')} · ${lastEp.duration||'2 min'}</p>
           </div>
           <div style="padding:14px 20px;">
-            <p style="color:#6b7280;font-size:13px;line-height:1.6;" class="line-clamp-2">${escapeHtml(lastEp.segments[0]?.text || '')}</p>
-            <button id="continueEpisodeBtn" class="btn-primary" style="width:100%;margin-top:12px;padding:12px;font-size:14px;">
-              続きから学ぶ →
-            </button>
+            <p style="color:#6b7280;font-size:13px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(lastEp.segments[0]?.text||'')}</p>
+            <button id="continueEpisodeBtn" class="btn-primary" style="width:100%;margin-top:12px;padding:12px;font-size:14px;">続きから学ぶ →</button>
           </div>
         </div>` : `
         <div class="card fade-in" style="padding:24px;text-align:center;margin-bottom:20px;">
           <div style="font-size:48px;margin-bottom:8px;">✨</div>
           <h2 style="font-size:17px;font-weight:800;color:#111827;margin:0 0 6px;">最初のエピソードを生成</h2>
-          <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">カテゴリを選んでAIに英語スクリプトを作ってもらいましょう</p>
-          <button id="goLearnBtn" class="btn-primary" style="padding:12px 28px;font-size:14px;">
-            学ぶ →
-          </button>
+          <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">「学ぶ」タブでシーンを選んでAIにスクリプトを生成してもらいましょう</p>
+          <button id="goLearnBtn" class="btn-primary" style="padding:12px 28px;font-size:14px;">学ぶ →</button>
         </div>`}
 
-        <!-- Categories grid -->
-        <p class="section-heading">カテゴリ</p>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-          ${CATEGORIES.map(c => {
-            const hasEp = !!state.episodes[c.id];
+        <p style="font-size:13px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 10px;">ドメイン別の進捗</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          ${DOMAINS.map(d => {
+            const scenes = getAllScenes(d.id);
+            const done = scenes.filter(s =>
+                LEVELS.some(l => state.sceneProgress[progressKey(d.id, s.id, l.id)])
+            ).length;
+            const pct = scenes.length > 0 ? Math.round((done / scenes.length) * 100) : 0;
             return `
-            <button class="cat-card today-cat-btn ${state.category === c.id ? 'active' : ''}" data-cat="${c.id}" style="position:relative;">
-              ${hasEp ? `<span style="position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--green);border-radius:50%;"></span>` : ''}
-              <span class="cat-emoji">${c.emoji}</span>
-              <span class="cat-label">${c.label}</span>
+            <button class="today-domain-btn card" data-domain="${d.id}"
+              style="padding:14px;text-align:left;border:none;cursor:pointer;width:100%;">
+              <span style="font-size:24px;">${d.emoji}</span>
+              <p style="font-size:13px;font-weight:700;color:#111827;margin:6px 0 4px;">${d.label}</p>
+              <div class="progress-bar-track" style="margin-bottom:4px;">
+                <div class="progress-bar-fill" style="width:${pct}%;"></div>
+              </div>
+              <p style="font-size:11px;color:#9ca3af;margin:0;">${done}/${scenes.length} シーン</p>
             </button>`;
           }).join('')}
         </div>
-        <p style="font-size:11px;color:#9ca3af;margin-top:8px;">● 生成済みのカテゴリ</p>
       </div>
     </div>`;
 }
 
-// --- Learn Tab ---
+// --- Learn Tab (Roadmap) ---
 function renderLearnTab() {
-    const cached = state.episodes[state.category];
-    const opts = getCategoryOpts();
-    const hasOpts = !!(opts.format || opts.instructions?.trim());
+    const domain = getDomain(state.selectedDomain);
+    const scenes  = getAllScenes(state.selectedDomain);
+    const rec     = getRecommended(state.selectedDomain);
 
     return `
     <div class="fade-in">
-      <!-- Header -->
+      <!-- Domain tabs -->
       <div style="background:white;border-bottom:1px solid #e5e7eb;padding:48px 16px 12px;position:sticky;top:0;z-index:10;">
         <h1 style="font-size:18px;font-weight:800;color:#111827;margin:0 0 10px;">📚 学ぶ</h1>
-        <!-- Category scroll -->
         <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;" class="scrollbar-hide">
-          ${CATEGORIES.map(c => {
-            const active = state.category === c.id;
-            return `<button class="category-tab flex-shrink-0"
-              data-category="${c.id}"
+          ${DOMAINS.map(d => {
+            const active = state.selectedDomain === d.id;
+            return `<button class="domain-tab" data-domain="${d.id}"
               style="padding:6px 14px;border-radius:99px;font-size:13px;font-weight:700;white-space:nowrap;border:none;cursor:pointer;
                      background:${active ? 'var(--primary)' : '#f3f4f6'};color:${active ? 'white' : '#374151'};">
-              ${c.emoji} ${c.label}
+              ${d.emoji} ${d.label}
             </button>`;
           }).join('')}
         </div>
       </div>
 
+      <!-- Scene roadmap -->
       <div style="padding:16px 16px 24px;">
-        ${state.category === 'custom' ? renderCustomForm() : (cached ? renderEpisodeCard(cached) : renderGenerateCard())}
+        ${scenes.map((scene, idx) => {
+            const isUserScene = !domain.scenes.find(s => s.id === scene.id);
+            const isRec = rec && rec.sceneId === scene.id;
 
-        ${state.category !== 'custom' ? renderOptionsPanel() : ''}
+            return `
+            <div class="scene-card">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <span style="width:24px;height:24px;border-radius:50%;background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${idx+1}</span>
+                <span style="font-size:14px;font-weight:700;color:#111827;flex:1;">${escapeHtml(scene.label)}</span>
+                ${isRec ? `<span style="font-size:10px;font-weight:700;background:var(--primary);color:white;padding:2px 8px;border-radius:99px;">おすすめ</span>` : ''}
+                ${isUserScene ? `<button class="delete-user-scene-btn" data-domain="${state.selectedDomain}" data-scene-id="${scene.id}" style="background:none;border:none;cursor:pointer;color:#d1d5db;font-size:16px;padding:0;line-height:1;">✕</button>` : ''}
+              </div>
+              <div style="display:flex;gap:6px;">
+                ${LEVELS.map(lv => {
+                    const key  = progressKey(state.selectedDomain, scene.id, lv.id);
+                    const done = !!state.sceneProgress[key];
+                    const locked = !isLevelUnlocked(state.selectedDomain, scene.id, lv.id);
+                    const isRecThis = isRec && rec.levelId === lv.id;
+                    return `
+                    <button class="level-btn scene-level-btn"
+                      data-domain="${state.selectedDomain}"
+                      data-scene="${scene.id}"
+                      data-level="${lv.id}"
+                      ${locked ? 'disabled' : ''}
+                      style="border-color:${locked ? '#e5e7eb' : lv.border};
+                             background:${locked ? '#f9fafb' : done ? lv.bg : 'white'};
+                             color:${locked ? '#9ca3af' : lv.color};
+                             opacity:${locked ? '0.6' : '1'};
+                             ${isRecThis ? `box-shadow:0 0 0 2px ${lv.color};` : ''}">
+                      ${locked ? '🔒' : done ? '✅' : lv.emoji} ${lv.label}
+                    </button>`;
+                }).join('')}
+              </div>
+            </div>`;
+        }).join('')}
 
-        ${state.category !== 'custom' && cached ? `
-        <button id="regenerateBtn" class="btn-ghost" style="width:100%;margin-top:10px;padding:12px;font-size:13px;">
-          🔄 新しいエピソードを生成する
-        </button>` : ''}
+        <!-- Add custom scene -->
+        ${state.showAddSceneForm && state.addSceneFormDomain === state.selectedDomain ? `
+        <div class="card" style="padding:16px;margin-bottom:10px;border:1.5px dashed var(--primary);">
+          <p style="font-size:13px;font-weight:700;color:var(--primary);margin:0 0 10px;">✏️ シーンを追加</p>
+          <input id="newSceneLabel" placeholder="シーン名（例：Zoomで会議の冒頭を進める）"
+            style="width:100%;border:1.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;outline:none;margin-bottom:8px;color:#111827;">
+          <textarea id="newScenePrompt" rows="2"
+            placeholder="内容のヒント（例：ZoomでITスタートアップのCSMが欧米クライアントに四半期レビューを始める場面）"
+            style="width:100%;border:1.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;resize:none;outline:none;color:#111827;background:white;"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button id="cancelAddSceneBtn" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;font-size:13px;font-weight:700;cursor:pointer;color:#374151;">キャンセル</button>
+            <button id="saveAddSceneBtn" class="btn-primary" style="flex:2;padding:10px;font-size:13px;">追加する</button>
+          </div>
+        </div>` : `
+        <button id="showAddSceneBtn" data-domain="${state.selectedDomain}"
+          style="width:100%;padding:12px;border-radius:14px;border:1.5px dashed #d1d5db;background:white;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;">
+          ＋ シーンを追加
+        </button>`}
       </div>
     </div>`;
 }
 
-function renderEpisodeCard(ep) {
-    const isDialog = ep.speakers && ep.speakers.length > 1;
-    const dateLabel = ep.generatedAt ? formatDate(ep.generatedAt) : '';
+// --- Scene View ---
+function renderSceneView() {
+    const { domainId, sceneId } = state.selectedScene;
+    const domain  = getDomain(domainId);
+    const scene   = getScene(domainId, sceneId);
+    const key     = episodeKey(domainId, sceneId, state.selectedLevel);
+    const cached  = state.episodes[key];
+    const lv      = LEVELS.find(l => l.id === state.selectedLevel);
+
     return `
-    <div class="card" style="overflow:hidden;">
-      <div style="background:linear-gradient(135deg,var(--primary),#6d28d9);padding:18px 20px 14px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-          <p style="color:#a5b4fc;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin:0;">${escapeHtml(ep.categoryLabel)}</p>
-          ${dateLabel ? `<span style="color:#a5b4fc;font-size:11px;">${dateLabel}</span>` : ''}
+    <div style="min-height:100vh;background:#f8fafc;">
+      <!-- Header -->
+      <div style="background:white;border-bottom:1px solid #e5e7eb;padding:48px 16px 14px;position:sticky;top:0;z-index:10;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button id="backToLearnBtn" style="background:none;border:none;cursor:pointer;font-size:14px;font-weight:700;color:var(--primary);padding:0;white-space:nowrap;">← 戻る</button>
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:11px;color:#9ca3af;margin:0;">${domain.emoji} ${domain.label}</p>
+            <p style="font-size:14px;font-weight:800;color:#111827;margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(scene.label)}</p>
+          </div>
         </div>
-        <h2 style="color:white;font-size:17px;font-weight:800;margin:6px 0 6px;line-height:1.3;">${escapeHtml(ep.title)}</h2>
-        <p style="color:#a5b4fc;font-size:12px;margin:0;">⏱ ${ep.duration || '2 min'} &nbsp;•&nbsp; ${isDialog ? `${ep.speakers.length}名の対話` : 'モノローグ'}</p>
       </div>
-      <div style="padding:16px 20px;">
-        <p style="color:#6b7280;font-size:13px;line-height:1.6;" class="line-clamp-3">${escapeHtml(ep.segments[0]?.text || '')}</p>
-        <button id="openEpisodeBtn" class="btn-primary" style="width:100%;margin-top:14px;padding:13px;font-size:15px;">
-          学習を始める →
+
+      <div style="padding:16px 16px 32px;">
+        <!-- Level selector -->
+        <p style="font-size:12px;font-weight:700;color:#6b7280;margin:0 0 8px;">難易度を選択</p>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          ${LEVELS.map(l => {
+            const active  = state.selectedLevel === l.id;
+            const locked  = !isLevelUnlocked(domainId, sceneId, l.id);
+            return `
+            <button class="scene-view-level-btn" data-level="${l.id}"
+              ${locked ? 'disabled' : ''}
+              style="flex:1;padding:10px 4px;border-radius:12px;border:2px solid ${active ? l.color : locked ? '#e5e7eb' : '#e5e7eb'};
+                     background:${active ? l.bg : locked ? '#f9fafb' : 'white'};
+                     color:${locked ? '#9ca3af' : l.color};font-size:12px;font-weight:700;cursor:${locked ? 'default' : 'pointer'};
+                     opacity:${locked ? '0.5' : '1'};">
+              ${locked ? '🔒' : l.emoji}<br>${l.label}<br>
+              <span style="font-size:10px;font-weight:500;color:${locked ? '#9ca3af' : '#6b7280'};">TOEIC ${l.toeic}</span>
+            </button>`;
+          }).join('')}
+        </div>
+
+        <!-- Format selector (optional) -->
+        <button id="toggleFormatBtn"
+          style="width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid ${state.selectedFormat ? '#a78bfa' : '#e5e7eb'};
+                 background:${state.selectedFormat ? '#faf5ff' : 'white'};font-size:13px;font-weight:700;
+                 color:${state.selectedFormat ? '#7c3aed' : '#6b7280'};cursor:pointer;text-align:left;margin-bottom:${state.showFormatPanel ? '0' : '16px'};">
+          🎛 形式を指定 ${state.selectedFormat ? `<span style="font-size:10px;background:#7c3aed;color:white;padding:1px 7px;border-radius:99px;margin-left:4px;">設定中</span>` : '<span style="font-size:11px;color:#9ca3af;">(任意)</span>'}
+          <span style="float:right;color:#9ca3af;">${state.showFormatPanel ? '▲' : '▼'}</span>
+        </button>
+        ${state.showFormatPanel ? `
+        <div style="background:white;border:1.5px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:12px 14px;margin-bottom:16px;">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <button class="format-chip" data-value=""
+              style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px;cursor:pointer;
+                     border:1.5px solid ${!state.selectedFormat ? '#7c3aed' : '#e5e7eb'};
+                     background:${!state.selectedFormat ? '#7c3aed' : '#f9fafb'};
+                     color:${!state.selectedFormat ? 'white' : '#374151'};">自動</button>
+            ${CUSTOM_FORMATS.map(f => {
+                const active = state.selectedFormat === f.value;
+                return `<button class="format-chip" data-value="${escapeHtml(f.value)}"
+                  style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px;cursor:pointer;
+                         border:1.5px solid ${active ? '#7c3aed' : '#e5e7eb'};
+                         background:${active ? '#7c3aed' : '#f9fafb'};
+                         color:${active ? 'white' : '#374151'};">${f.label}</button>`;
+            }).join('')}
+          </div>
+        </div>` : ''}
+
+        <!-- Episode card or generate card -->
+        <div id="sceneContent">
+          ${cached ? renderSceneEpisodeCard(cached, key) : renderSceneGenerateCard()}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderSceneEpisodeCard(ep, key) {
+    const lv = LEVELS.find(l => l.id === state.selectedLevel);
+    return `
+    <div class="card" style="overflow:hidden;" id="sceneEpisodeCard">
+      <div style="background:linear-gradient(135deg,var(--primary),#6d28d9);padding:16px 20px 14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <p style="color:#a5b4fc;font-size:11px;font-weight:700;text-transform:uppercase;margin:0;">${lv.emoji} ${lv.label}</p>
+          <span style="color:#a5b4fc;font-size:11px;">${formatDate(ep.generatedAt)}</span>
+        </div>
+        <h2 style="color:white;font-size:16px;font-weight:800;margin:6px 0 4px;line-height:1.3;">${escapeHtml(ep.title)}</h2>
+        <p style="color:#a5b4fc;font-size:12px;margin:0;">⏱ ${ep.duration||'2 min'} · ${ep.speakers?.length||2}名</p>
+      </div>
+      <div style="padding:14px 20px;">
+        <p style="color:#6b7280;font-size:13px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(ep.segments[0]?.text||'')}</p>
+        <button id="openEpisodeBtn" class="btn-primary" style="width:100%;margin-top:12px;padding:13px;font-size:15px;">学習を始める →</button>
+        <button id="regenerateBtn" style="width:100%;margin-top:8px;padding:11px;border-radius:14px;border:1.5px solid #e5e7eb;background:white;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;">
+          🔄 新しく生成する
         </button>
       </div>
     </div>`;
 }
 
-function renderGenerateCard() {
+function renderSceneGenerateCard() {
     return `
-    <div id="generateCard" class="card" style="padding:32px 20px;text-align:center;">
+    <div id="sceneGenerateCard" class="card" style="padding:32px 20px;text-align:center;">
       <div style="font-size:48px;margin-bottom:10px;">✨</div>
       <h2 style="font-size:17px;font-weight:800;color:#111827;margin:0 0 8px;">エピソードを生成</h2>
-      <p style="font-size:13px;color:#6b7280;margin:0 0 20px;">AIが2〜3分のスクリプトを作成します</p>
-      <button id="generateBtn" class="btn-primary" style="width:100%;padding:14px;font-size:15px;">
-        生成する
-      </button>
+      <p style="font-size:13px;color:#6b7280;margin:0 0 20px;">AIが2〜3分のスクリプトを作成します。毎回内容が変わります。</p>
+      <button id="generateBtn" class="btn-primary" style="width:100%;padding:14px;font-size:15px;">生成する</button>
     </div>`;
 }
 
-function renderOptionsPanel() {
-    const opts = getCategoryOpts();
-    const hasOpts = !!(opts.format || (opts.instructions && opts.instructions.trim()));
-    const open = state.optionsPanelOpen;
+// --- Episode Playback ---
+function renderEpisode() {
+    const ep = state.currentEpisode;
+    const isDialog = ep.speakers?.length > 1;
+    const allPhrases = getAllPhrases(ep);
 
     return `
-    <div style="margin-top:12px;border-radius:14px;border:1.5px solid ${hasOpts ? '#a78bfa' : '#e5e7eb'};background:${hasOpts ? '#faf5ff' : 'white'};overflow:hidden;">
-      <button id="optionsToggleBtn" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:none;border:none;cursor:pointer;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:13px;font-weight:700;color:${hasOpts ? '#7c3aed' : '#6b7280'};">🎛 オプション指定</span>
-          ${hasOpts ? `<span style="font-size:10px;font-weight:700;background:#7c3aed;color:white;padding:1px 8px;border-radius:99px;">設定中</span>` : `<span style="font-size:11px;color:#9ca3af;">任意</span>`}
+    <div style="min-height:100vh;background:#f8fafc;">
+      <div style="background:white;border-bottom:1px solid #e5e7eb;padding:48px 16px 12px;position:sticky;top:0;z-index:10;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button id="backBtn" style="background:none;border:none;cursor:pointer;font-size:14px;font-weight:700;color:var(--primary);padding:0;white-space:nowrap;">← 戻る</button>
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:11px;color:#9ca3af;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(ep.domainLabel||'')} · ${escapeHtml(ep.sceneLabel||'')} · ${escapeHtml(ep.levelLabel||'')}</p>
+            <p style="font-size:13px;font-weight:800;color:#111827;margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(ep.title)}</p>
+          </div>
+          <button id="translationToggleBtn"
+            style="flex-shrink:0;font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;border:none;cursor:pointer;
+                   ${state.showTranslations ? 'background:var(--primary);color:white;' : 'background:#f3f4f6;color:#374151;'}">
+            日本語
+          </button>
         </div>
-        <span style="color:#9ca3af;font-size:12px;">${open ? '▲' : '▼'}</span>
-      </button>
-      <div id="optionsPanelBody" style="display:${open ? 'block' : 'none'};padding:0 16px 16px;">
-        <p style="font-size:12px;color:#6b7280;margin:0 0 10px;">形式や含めたいフレーズを指定できます。空欄なら通常生成。</p>
-        <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 6px;">形式（任意）</p>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
-          ${CUSTOM_FORMATS.map((f, i) => {
-            const active = opts.format === f.value;
-            return `<button class="opt-format-btn" data-index="${i}"
-              style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px;border:1.5px solid ${active ? '#7c3aed' : '#e5e7eb'};background:${active ? '#7c3aed' : '#f9fafb'};color:${active ? 'white' : '#374151'};cursor:pointer;">
-              ${f.label}
-            </button>`;
-          }).join('')}
+        <div class="progress-bar-track" style="margin-top:10px;">
+          <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
         </div>
-        <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 6px;">追加指示（任意）</p>
-        <textarea id="optInstructionsArea" rows="2"
-          placeholder="例：空港での乗り継ぎシーン&#10;例：「take it to the next level」を含めて"
-          style="width:100%;border:1.5px solid #d1d5db;border-radius:10px;padding:8px 12px;font-size:13px;resize:none;outline:none;color:#111827;background:white;"
-        >${escapeHtml(opts.instructions || '')}</textarea>
-        ${hasOpts ? `<button id="clearOptsBtn" style="margin-top:8px;font-size:12px;color:var(--red);background:none;border:none;cursor:pointer;padding:0;">🗑 オプションをクリア</button>` : ''}
       </div>
-    </div>`;
-}
 
-function renderCustomForm() {
-    const canGenerate = state.customFormat || state.customTopic.trim();
-    return `
-    <div id="customFormCard" class="card" style="overflow:hidden;">
-      <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9);padding:18px 20px 14px;">
-        <p style="color:#c4b5fd;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin:0;">✏️ Custom</p>
-        <h2 style="color:white;font-size:17px;font-weight:800;margin:6px 0 4px;">形式とテーマを自由に設定</h2>
-        <p style="color:#c4b5fd;font-size:12px;margin:0;">どちらか一方だけでも生成できます</p>
-      </div>
-      <div style="padding:16px 20px;">
-        <p style="font-size:12px;font-weight:700;color:#6b7280;margin:0 0 4px;">形式を選ぶ</p>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
-          ${CUSTOM_FORMATS.map((f, i) => {
-            const active = state.customFormat === f.value;
-            return `<button class="custom-format-btn" data-index="${i}"
-              style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px;border:1.5px solid ${active ? '#7c3aed' : '#e5e7eb'};background:${active ? '#7c3aed' : '#f9fafb'};color:${active ? 'white' : '#374151'};cursor:pointer;">
-              ${f.label}
-            </button>`;
+      ${isDialog && ep.speakers ? `
+      <div style="padding:12px 16px 0;display:flex;gap:12px;flex-wrap:wrap;">
+        ${ep.speakers.map((s,i) => `
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:${SPEAKER_COLORS[i]||SPEAKER_COLORS[0]};display:inline-block;"></span>
+          <span style="font-size:12px;color:#6b7280;font-weight:600;">${escapeHtml(s.name)}</span>
+        </div>`).join('')}
+      </div>` : ''}
+
+      <div style="padding:12px 16px 200px;">
+        ${ep.segments.map((seg, si) => {
+            const spIdx = ep.speakers ? ep.speakers.findIndex(s => s.id === seg.speaker) : 0;
+            const bc    = SPEAKER_COLORS[spIdx] || SPEAKER_COLORS[0];
+            const sp    = ep.speakers ? ep.speakers.find(s => s.id === seg.speaker) : null;
+            const hlText = buildHighlightedText(seg.text, seg.highlights, si);
+            return `
+            <div class="seg-card" style="${isDialog ? `border-left:3px solid ${bc};` : ''}">
+              ${isDialog && sp ? `<p style="font-size:11px;font-weight:700;color:${bc};margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em;">${escapeHtml(sp.name)}</p>` : ''}
+              <p style="font-size:15px;color:#111827;line-height:1.7;margin:0;">${hlText}</p>
+              ${seg.translation ? `
+              <p class="translation-text" style="display:${state.showTranslations ? 'block' : 'none'};font-size:13px;color:#6b7280;margin:8px 0 0;padding-top:8px;border-top:1px solid #f3f4f6;line-height:1.6;">
+                ${escapeHtml(seg.translation)}
+              </p>` : ''}
+            </div>`;
+        }).join('')}
+
+        ${allPhrases.length > 0 ? `
+        <div style="background:#fffbeb;border-radius:16px;padding:16px;border:1px solid #fde68a;margin-top:8px;">
+          <h3 style="font-size:14px;font-weight:800;color:#92400e;margin:0 0 14px;">📌 キーフレーズ (${allPhrases.length})</h3>
+          ${allPhrases.map(p => {
+            const saved = state.savedPhrases.some(s => s.phrase === p.phrase);
+            return `
+            <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #fde68a;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:14px;font-weight:800;color:#1c1917;margin:0 0 4px;">${escapeHtml(p.phrase)}</p>
+                  <p style="font-size:12px;color:#78716c;margin:0;line-height:1.6;">${escapeHtml(p.explanation)}</p>
+                </div>
+                <button class="save-phrase-btn" data-phrase="${encodeURIComponent(p.phrase)}" data-explanation="${encodeURIComponent(p.explanation)}" data-episode="${encodeURIComponent(ep.title)}"
+                  style="background:none;border:none;cursor:pointer;font-size:20px;padding:0;flex-shrink:0;line-height:1;">${saved ? '⭐' : '☆'}</button>
+              </div>
+            </div>`;
           }).join('')}
+        </div>` : ''}
+      </div>
+
+      <!-- Player -->
+      <div style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;padding:12px 16px 24px;box-shadow:0 -4px 24px rgba(0,0,0,0.08);">
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;">
+          ${[0.75, 1.0, 1.25].map(r => `
+          <button class="speed-pill speed-btn" data-rate="${r}"
+            style="background:${state.ttsRate===r ? 'var(--primary)' : '#f3f4f6'};color:${state.ttsRate===r ? 'white' : '#374151'};">
+            ${r}x
+          </button>`).join('')}
         </div>
-        <p style="font-size:12px;font-weight:700;color:#6b7280;margin:0 0 4px;">テーマ・詳細（自由入力）</p>
-        <textarea id="customTopicArea" rows="3"
-          placeholder="例：Hondaの最終面接でCSの経験を話したい&#10;例：パリ旅行でホテルにチェックインする場面&#10;例：映画 The Office のような職場のユーモア"
-          style="width:100%;border:1.5px solid #d1d5db;border-radius:12px;padding:10px 12px;font-size:13px;resize:none;outline:none;color:#111827;background:white;"
-        >${escapeHtml(state.customTopic)}</textarea>
-        <button id="customGenerateBtn" style="width:100%;margin-top:12px;padding:13px;border-radius:14px;font-size:15px;font-weight:700;border:none;cursor:pointer;color:white;background:${canGenerate ? '#7c3aed' : '#d1d5db'};" ${canGenerate ? '' : 'disabled'}>
-          ✨ 生成する
-        </button>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button id="rewindBtn" style="width:46px;height:46px;border-radius:50%;background:#f3f4f6;border:none;cursor:pointer;font-size:18px;flex-shrink:0;">⏮</button>
+          <button id="playBtn" style="flex:1;height:46px;border-radius:14px;background:var(--primary);color:white;border:none;cursor:pointer;font-size:20px;font-weight:700;">
+            ${state.isPlaying ? '⏸' : '▶'}
+          </button>
+          <button id="stopBtn" style="width:46px;height:46px;border-radius:50%;background:#f3f4f6;border:none;cursor:pointer;font-size:18px;flex-shrink:0;">⏹</button>
+        </div>
+        <p id="playBtnLabel" style="text-align:center;font-size:11px;color:#9ca3af;margin:6px 0 0;">${state.isPlaying ? '一時停止' : '再生'}</p>
       </div>
     </div>`;
 }
@@ -796,27 +948,22 @@ function renderPhrasesTab() {
 // --- Settings Tab ---
 function renderSettingsTab() {
     const voices = getEnglishVoices();
-    const voiceOptions = (selectedName) => voices.map(v =>
-        `<option value="${escapeHtml(v.name)}" ${selectedName === v.name ? 'selected' : ''}>${escapeHtml(v.name)}</option>`
-    ).join('');
-
-    const voiceRow = (label, badge, color, selectId, previewBtnId, selectedName) => `
+    const voiceOpts = (sel) => voices.map(v => `<option value="${escapeHtml(v.name)}" ${sel===v.name?'selected':''}>${escapeHtml(v.name)}</option>`).join('');
+    const voiceRow = (label, badge, color, selId, btnId, sel) => `
     <div style="margin-bottom:16px;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
         <span style="font-size:13px;font-weight:700;color:#374151;">${label}</span>
         <span style="font-size:11px;font-weight:700;color:white;background:${color};padding:1px 8px;border-radius:99px;">${badge}</span>
       </div>
       <div style="display:flex;gap:8px;">
-        <select id="${selectId}" style="flex:1;border:1.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;background:white;outline:none;min-width:0;">
-          ${voices.length > 0 ? voiceOptions(selectedName) : '<option>（英語音声なし）</option>'}
+        <select id="${selId}" style="flex:1;border:1.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;background:white;outline:none;min-width:0;">
+          ${voices.length > 0 ? voiceOpts(sel) : '<option>（英語音声なし）</option>'}
         </select>
-        <button id="${previewBtnId}" style="flex-shrink:0;background:var(--primary);color:white;border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;">
-          ▶ 試聴
-        </button>
+        <button id="${btnId}" style="flex-shrink:0;background:var(--primary);color:white;border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;">▶ 試聴</button>
       </div>
     </div>`;
 
-    const epCount = Object.keys(state.episodes).length;
+    const { attempted, total } = getTotalProgress();
 
     return `
     <div class="fade-in">
@@ -824,8 +971,6 @@ function renderSettingsTab() {
         <h1 style="font-size:18px;font-weight:800;color:#111827;margin:0;">⚙️ 設定</h1>
       </div>
       <div style="padding:16px;">
-
-        <!-- API Key -->
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <p style="font-size:13px;font-weight:700;color:#374151;margin:0 0 4px;">🔑 Anthropic API Key</p>
           <p style="font-size:12px;color:#9ca3af;margin:0 0 10px;">キーはこの端末にのみ保存されます</p>
@@ -833,40 +978,29 @@ function renderSettingsTab() {
             style="width:100%;border:1.5px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:14px;outline:none;color:#111827;background:white;">
           <button id="saveApiKeyBtn" class="btn-primary" style="width:100%;margin-top:10px;padding:11px;font-size:14px;">保存する</button>
         </div>
-
-        <!-- Voice -->
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <p style="font-size:13px;font-weight:700;color:#374151;margin:0 0 4px;">🎙 音声設定</p>
-          <p style="font-size:12px;color:#9ca3af;margin:0 0 14px;">音声を選んで「▶ 試聴」で確認できます</p>
+          <p style="font-size:12px;color:#9ca3af;margin:0 0 14px;">「▶ 試聴」で確認できます</p>
           ${voiceRow('Speaker A', 'A', 'var(--primary)', 'voiceSelectA', 'previewBtnA', state.voiceNameA)}
-          ${voiceRow('Speaker B', 'B', 'var(--green)', 'voiceSelectB', 'previewBtnB', state.voiceNameB)}
-          ${voices.length === 0 ? `
-          <div style="font-size:12px;color:#dc2626;background:#fef2f2;padding:12px;border-radius:10px;line-height:1.6;">
-            ⚠️ 英語音声が見つかりません。<br>
-            iPhone: 設定 → アクセシビリティ → 読み上げ → 声 → English<br>
-            Android: 設定 → ユーザー補助 → TTS → 言語追加
-          </div>` : ''}
+          ${voiceRow('Speaker B', 'B', 'var(--green)',   'voiceSelectB', 'previewBtnB', state.voiceNameB)}
+          ${voices.length === 0 ? `<div style="font-size:12px;color:#dc2626;background:#fef2f2;padding:12px;border-radius:10px;line-height:1.6;">⚠️ 英語音声が見つかりません。<br>iPhone: 設定 → アクセシビリティ → 読み上げ → 声 → English</div>` : ''}
           <button id="saveVoicesBtn" class="btn-primary" style="width:100%;margin-top:6px;padding:11px;font-size:14px;">音声を保存する</button>
         </div>
-
-        <!-- Playback speed -->
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <p style="font-size:13px;font-weight:700;color:#374151;margin:0 0 12px;">⏱ 再生速度</p>
           <div style="display:flex;gap:8px;justify-content:center;">
             ${[0.75, 1.0, 1.25, 1.5].map(r => `
             <button class="speed-pill settings-speed-btn" data-rate="${r}"
-              style="background:${state.ttsRate === r ? 'var(--primary)' : '#f3f4f6'};color:${state.ttsRate === r ? 'white' : '#374151'};">
+              style="background:${state.ttsRate===r ? 'var(--primary)' : '#f3f4f6'};color:${state.ttsRate===r ? 'white' : '#374151'};">
               ${r}x
             </button>`).join('')}
           </div>
         </div>
-
-        <!-- Data -->
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <p style="font-size:13px;font-weight:700;color:#374151;margin:0 0 12px;">📊 データ</p>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <span style="font-size:13px;color:#6b7280;">生成済みエピソード</span>
-            <span style="font-size:13px;font-weight:700;color:#111827;">${epCount}件</span>
+            <span style="font-size:13px;color:#6b7280;">体験済みシーン</span>
+            <span style="font-size:13px;font-weight:700;color:#111827;">${attempted}/${total}</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <span style="font-size:13px;color:#6b7280;">保存フレーズ</span>
@@ -879,109 +1013,7 @@ function renderSettingsTab() {
             ⚠️ すべてのデータをリセット
           </button>
         </div>
-
-        <!-- Version -->
-        <p style="text-align:center;font-size:11px;color:#9ca3af;margin-top:16px;">EigoDaily v2.0</p>
-      </div>
-    </div>`;
-}
-
-// --- Episode View ---
-function renderEpisode() {
-    const ep = state.currentEpisode;
-    const isDialog = ep.speakers && ep.speakers.length > 1;
-    const allPhrases = getAllPhrases(ep);
-    const total = ep.segments.length;
-
-    return `
-    <div style="min-height:100vh;background:#f8fafc;">
-      <!-- Header -->
-      <div style="background:white;border-bottom:1px solid #e5e7eb;padding:48px 16px 12px;position:sticky;top:0;z-index:10;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <button id="backBtn" style="background:none;border:none;cursor:pointer;font-size:14px;font-weight:700;color:var(--primary);white-space:nowrap;padding:0;">← 戻る</button>
-          <div style="flex:1;min-width:0;">
-            <p style="font-size:11px;color:#9ca3af;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(ep.categoryLabel || '')}</p>
-            <p style="font-size:13px;font-weight:800;color:#111827;margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(ep.title)}</p>
-          </div>
-          <button id="translationToggleBtn" style="flex-shrink:0;font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;border:none;cursor:pointer;${state.showTranslations ? 'background:var(--primary);color:white;' : 'background:#f3f4f6;color:#374151;'}">
-            日本語
-          </button>
-        </div>
-        <!-- Progress bar -->
-        <div class="progress-bar-track" style="margin-top:10px;">
-          <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
-        </div>
-      </div>
-
-      <!-- Speakers legend -->
-      ${isDialog && ep.speakers ? `
-      <div style="padding:12px 16px 0;display:flex;gap:12px;flex-wrap:wrap;">
-        ${ep.speakers.map((s, i) => `
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="width:10px;height:10px;border-radius:50%;background:${SPEAKER_COLORS[i] || SPEAKER_COLORS[0]};display:inline-block;"></span>
-          <span style="font-size:12px;color:#6b7280;font-weight:600;">${escapeHtml(s.name)}</span>
-        </div>`).join('')}
-      </div>` : ''}
-
-      <!-- Segments -->
-      <div style="padding:12px 16px 200px;">
-        ${ep.segments.map((seg, si) => {
-          const speakerIndex = ep.speakers ? ep.speakers.findIndex(s => s.id === seg.speaker) : 0;
-          const borderColor = SPEAKER_COLORS[speakerIndex] || SPEAKER_COLORS[0];
-          const speaker = ep.speakers ? ep.speakers.find(s => s.id === seg.speaker) : null;
-          const hlText = buildHighlightedText(seg.text, seg.highlights, si);
-
-          return `
-          <div class="seg-card" style="${isDialog ? `border-left:3px solid ${borderColor};` : ''}">
-            ${isDialog && speaker ? `<p style="font-size:11px;font-weight:700;color:${borderColor};margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em;">${escapeHtml(speaker.name)}</p>` : ''}
-            <p style="font-size:15px;color:#111827;line-height:1.7;margin:0;">${hlText}</p>
-            ${seg.translation ? `
-            <p class="translation-text" style="display:${state.showTranslations ? 'block' : 'none'};font-size:13px;color:#6b7280;margin:8px 0 0;padding-top:8px;border-top:1px solid #f3f4f6;line-height:1.6;">
-              ${escapeHtml(seg.translation)}
-            </p>` : ''}
-          </div>`;
-        }).join('')}
-
-        <!-- Key Phrases -->
-        ${allPhrases.length > 0 ? `
-        <div style="background:#fffbeb;border-radius:16px;padding:16px;border:1px solid #fde68a;margin-top:8px;">
-          <h3 style="font-size:14px;font-weight:800;color:#92400e;margin:0 0 14px;">📌 キーフレーズ (${allPhrases.length})</h3>
-          ${allPhrases.map(p => {
-            const isSaved = state.savedPhrases.some(s => s.phrase === p.phrase);
-            return `
-            <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #fde68a;" class="last-phrase-no-border">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
-                <div style="flex:1;min-width:0;">
-                  <p style="font-size:14px;font-weight:800;color:#1c1917;margin:0 0 4px;">${escapeHtml(p.phrase)}</p>
-                  <p style="font-size:12px;color:#78716c;margin:0;line-height:1.6;">${escapeHtml(p.explanation)}</p>
-                </div>
-                <button class="save-phrase-btn" data-phrase="${encodeURIComponent(p.phrase)}" data-explanation="${encodeURIComponent(p.explanation)}" data-episode="${encodeURIComponent(ep.title)}"
-                  style="background:none;border:none;cursor:pointer;font-size:20px;padding:0;flex-shrink:0;line-height:1;">${isSaved ? '⭐' : '☆'}</button>
-              </div>
-            </div>`;
-          }).join('')}
-        </div>` : ''}
-      </div>
-
-      <!-- Player -->
-      <div style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;padding:12px 16px 24px;box-shadow:0 -4px 24px rgba(0,0,0,0.08);">
-        <!-- Speed row -->
-        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;">
-          ${[0.75, 1.0, 1.25].map(r => `
-          <button class="speed-pill speed-btn" data-rate="${r}"
-            style="background:${state.ttsRate === r ? 'var(--primary)' : '#f3f4f6'};color:${state.ttsRate === r ? 'white' : '#374151'};">
-            ${r}x
-          </button>`).join('')}
-        </div>
-        <!-- Controls row -->
-        <div style="display:flex;gap:10px;align-items:center;">
-          <button id="rewindBtn" style="width:46px;height:46px;border-radius:50%;background:#f3f4f6;border:none;cursor:pointer;font-size:18px;flex-shrink:0;">⏮</button>
-          <button id="playBtn" style="flex:1;height:46px;border-radius:14px;background:var(--primary);color:white;border:none;cursor:pointer;font-size:20px;font-weight:700;">
-            ${state.isPlaying ? '⏸' : '▶'}
-          </button>
-          <button id="stopBtn" style="width:46px;height:46px;border-radius:50%;background:#f3f4f6;border:none;cursor:pointer;font-size:18px;flex-shrink:0;">⏹</button>
-        </div>
-        <p id="playBtnLabel" style="text-align:center;font-size:11px;color:#9ca3af;margin:6px 0 0;">${state.isPlaying ? '一時停止' : '再生'}</p>
+        <p style="text-align:center;font-size:11px;color:#9ca3af;margin-top:16px;">EigoDaily v3.0</p>
       </div>
     </div>`;
 }
@@ -995,361 +1027,212 @@ function showLoading(container) {
       <p style="font-size:13px;color:#9ca3af;margin-top:4px;">最大10秒ほどかかります</p>
     </div>`;
 }
-
 function showError(container, message) {
     container.innerHTML = `
     <div style="padding:36px 20px;text-align:center;">
       <div style="font-size:40px;margin-bottom:10px;">⚠️</div>
       <p style="font-size:15px;font-weight:700;color:#111827;margin:0 0 6px;">生成に失敗しました</p>
       <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">${escapeHtml(message)}</p>
-      <button onclick="render()" style="padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">
-        やり直す
-      </button>
+      <button onclick="state.view='scene';render();" style="padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">やり直す</button>
     </div>`;
 }
 
-// ===== EVENT LISTENERS =====
+// ===== VOICE PREVIEW =====
 const PREVIEW_TEXT = "Hello! I'm your English learning assistant. Let's practice some business English together.";
+function previewVoice(selectId, btnId) {
+    const sel = document.getElementById(selectId);
+    const btn = document.getElementById(btnId);
+    if (!sel) return;
+    const voice = getEnglishVoices().find(v => v.name === sel.value);
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(PREVIEW_TEXT);
+    u.lang = 'en-US'; u.rate = state.ttsRate;
+    if (voice) u.voice = voice;
+    if (btn) {
+        btn.textContent = '⏹';
+        btn.style.background = '#ef4444';
+        u.onend = u.onerror = () => { btn.textContent = '▶ 試聴'; btn.style.background = 'var(--primary)'; };
+    }
+    speechSynthesis.speak(u);
+}
 
+// ===== GENERATE HELPER =====
+async function doGenerate(container) {
+    const { domainId, sceneId } = state.selectedScene;
+    showLoading(container);
+    try {
+        const ep = await generateEpisode({ domainId, sceneId, levelId: state.selectedLevel, format: state.selectedFormat });
+        const key = episodeKey(domainId, sceneId, state.selectedLevel);
+        state.episodes[key] = ep;
+        localStorage.setItem('episodes', JSON.stringify(state.episodes));
+        // Record progress
+        const pk = progressKey(domainId, sceneId, state.selectedLevel);
+        if (!state.sceneProgress[pk]) state.sceneProgress[pk] = { attempts: 0, firstAt: new Date().toISOString() };
+        state.sceneProgress[pk].attempts++;
+        state.sceneProgress[pk].lastAt = new Date().toISOString();
+        localStorage.setItem('sceneProgress', JSON.stringify(state.sceneProgress));
+        // Navigate to episode
+        state.currentEpisode = ep;
+        state.view = 'episode';
+        render();
+    } catch (err) {
+        showError(container, err.message);
+    }
+}
+
+// ===== EVENT LISTENERS =====
 function attachListeners() {
-    // Setup: save key
+    // Setup
     const saveKeyBtn = document.getElementById('saveKeyBtn');
     if (saveKeyBtn) {
         saveKeyBtn.addEventListener('click', () => {
             const key = document.getElementById('apiKeyInput').value.trim();
             if (!key) { alert('APIキーを入力してください'); return; }
-            state.apiKey = key;
-            localStorage.setItem('apiKey', key);
-            state.view = 'main';
-            render();
+            state.apiKey = key; localStorage.setItem('apiKey', key);
+            state.view = 'main'; render();
         });
-        document.getElementById('apiKeyInput').addEventListener('keydown', e => {
-            if (e.key === 'Enter') saveKeyBtn.click();
-        });
+        document.getElementById('apiKeyInput')?.addEventListener('keydown', e => { if (e.key==='Enter') saveKeyBtn.click(); });
     }
 
-    // Bottom nav tabs
+    // Bottom nav
     document.querySelectorAll('.bottom-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => { state.bottomTab = btn.dataset.tab; render(); });
+    });
+
+    // Today: continue
+    document.getElementById('continueEpisodeBtn')?.addEventListener('click', () => {
+        const ep = getLastEpisode();
+        if (ep) { state.currentEpisode = ep; state.view = 'episode'; render(); }
+    });
+
+    // Today: go learn
+    document.getElementById('goLearnBtn')?.addEventListener('click', () => { state.bottomTab = 'learn'; render(); });
+
+    // Today: domain cards
+    document.querySelectorAll('.today-domain-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            state.bottomTab = btn.dataset.tab;
+            state.selectedDomain = btn.dataset.domain;
+            localStorage.setItem('selectedDomain', state.selectedDomain);
+            state.bottomTab = 'learn'; render();
+        });
+    });
+
+    // Learn: domain tabs
+    document.querySelectorAll('.domain-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.selectedDomain = btn.dataset.domain;
+            localStorage.setItem('selectedDomain', state.selectedDomain);
             render();
         });
     });
 
-    // Today tab: continue episode
-    const continueBtn = document.getElementById('continueEpisodeBtn');
-    if (continueBtn) {
-        continueBtn.addEventListener('click', () => {
-            const lastEp = getLastEpisode();
-            if (lastEp) {
-                state.currentEpisode = lastEp;
-                state.view = 'episode';
-                render();
-            }
-        });
-    }
-
-    // Today tab: go to learn
-    const goLearnBtn = document.getElementById('goLearnBtn');
-    if (goLearnBtn) {
-        goLearnBtn.addEventListener('click', () => {
-            state.bottomTab = 'learn';
-            render();
-        });
-    }
-
-    // Today tab: category cards
-    document.querySelectorAll('.today-cat-btn').forEach(btn => {
+    // Learn: scene+level buttons
+    document.querySelectorAll('.scene-level-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            state.category = btn.dataset.cat;
-            localStorage.setItem('lastCategory', state.category);
-            state.bottomTab = 'learn';
-            render();
+            state.selectedScene = { domainId: btn.dataset.domain, sceneId: btn.dataset.scene };
+            state.selectedLevel = btn.dataset.level;
+            state.showFormatPanel = false;
+            state.selectedFormat = '';
+            state.view = 'scene'; render();
         });
     });
 
-    // Learn tab: category tabs
-    document.querySelectorAll('.category-tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-            state.category = btn.dataset.category;
-            localStorage.setItem('lastCategory', state.category);
-            render();
-        });
+    // Learn: show add scene form
+    document.getElementById('showAddSceneBtn')?.addEventListener('click', e => {
+        state.showAddSceneForm = true;
+        state.addSceneFormDomain = e.currentTarget.dataset.domain;
+        render();
+    });
+    document.getElementById('cancelAddSceneBtn')?.addEventListener('click', () => {
+        state.showAddSceneForm = false; state.addSceneFormDomain = null; render();
+    });
+    document.getElementById('saveAddSceneBtn')?.addEventListener('click', () => {
+        const label  = document.getElementById('newSceneLabel')?.value.trim();
+        const prompt = document.getElementById('newScenePrompt')?.value.trim();
+        if (!label) { alert('シーン名を入力してください'); return; }
+        const domainId = state.addSceneFormDomain || state.selectedDomain;
+        if (!state.userScenes[domainId]) state.userScenes[domainId] = [];
+        state.userScenes[domainId].push({ id: `u_${Date.now()}`, label, prompt: prompt || label });
+        localStorage.setItem('userScenes', JSON.stringify(state.userScenes));
+        state.showAddSceneForm = false; state.addSceneFormDomain = null; render();
     });
 
-    // Learn tab: generate
-    const generateBtn = document.getElementById('generateBtn');
-    if (generateBtn) {
-        generateBtn.addEventListener('click', async () => {
-            const card = document.getElementById('generateCard');
-            showLoading(card);
-            try {
-                const ep = await generateEpisode(state.category, '', '', getCategoryOpts());
-                state.episodes[state.category] = ep;
-                localStorage.setItem('episodes', JSON.stringify(state.episodes));
-                state.currentEpisode = ep;
-                state.view = 'episode';
-                render();
-            } catch (err) {
-                showError(card, err.message);
-            }
-        });
-    }
-
-    // Learn tab: regenerate
-    const regenerateBtn = document.getElementById('regenerateBtn');
-    if (regenerateBtn) {
-        regenerateBtn.addEventListener('click', async () => {
-            regenerateBtn.disabled = true;
-            regenerateBtn.textContent = '生成中...';
-            const card = document.querySelector('.card');
-            if (card) showLoading(card);
-            try {
-                const ep = await generateEpisode(state.category, '', '', getCategoryOpts());
-                state.episodes[state.category] = ep;
-                localStorage.setItem('episodes', JSON.stringify(state.episodes));
-                state.currentEpisode = ep;
-                state.view = 'episode';
-                render();
-            } catch (err) {
-                render();
-                alert('生成失敗: ' + err.message);
-            }
-        });
-    }
-
-    // Learn tab: open episode
-    const openEpisodeBtn = document.getElementById('openEpisodeBtn');
-    if (openEpisodeBtn) {
-        openEpisodeBtn.addEventListener('click', () => {
-            state.currentEpisode = state.episodes[state.category];
-            state.view = 'episode';
-            render();
-        });
-    }
-
-    // Options panel toggle
-    const optionsToggleBtn = document.getElementById('optionsToggleBtn');
-    if (optionsToggleBtn) {
-        optionsToggleBtn.addEventListener('click', () => {
-            state.optionsPanelOpen = !state.optionsPanelOpen;
-            const body = document.getElementById('optionsPanelBody');
-            const arrow = optionsToggleBtn.querySelector('span:last-child');
-            if (body) body.style.display = state.optionsPanelOpen ? 'block' : 'none';
-            if (arrow) arrow.textContent = state.optionsPanelOpen ? '▲' : '▼';
-        });
-    }
-
-    // Options: format chips
-    document.querySelectorAll('.opt-format-btn').forEach(btn => {
+    // Learn: delete user scene
+    document.querySelectorAll('.delete-user-scene-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const opts = getCategoryOpts();
-            const fmt = CUSTOM_FORMATS[parseInt(btn.dataset.index, 10)];
-            opts.format = opts.format === fmt.value ? '' : fmt.value;
-            saveCategoryOpts(opts);
-            document.querySelectorAll('.opt-format-btn').forEach(b => {
-                const active = CUSTOM_FORMATS[parseInt(b.dataset.index, 10)].value === opts.format;
-                b.style.background = active ? '#7c3aed' : '#f9fafb';
-                b.style.color = active ? 'white' : '#374151';
-                b.style.borderColor = active ? '#7c3aed' : '#e5e7eb';
-            });
-        });
-    });
-
-    // Options: instructions
-    const optInstructionsArea = document.getElementById('optInstructionsArea');
-    if (optInstructionsArea) {
-        optInstructionsArea.addEventListener('input', () => {
-            const opts = getCategoryOpts();
-            opts.instructions = optInstructionsArea.value;
-            saveCategoryOpts(opts);
-        });
-    }
-
-    // Options: clear
-    const clearOptsBtn = document.getElementById('clearOptsBtn');
-    if (clearOptsBtn) {
-        clearOptsBtn.addEventListener('click', () => {
-            saveCategoryOpts({ format: '', instructions: '' });
-            render();
-        });
-    }
-
-    // Custom: format chips
-    document.querySelectorAll('.custom-format-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const fmt = CUSTOM_FORMATS[parseInt(btn.dataset.index, 10)];
-            state.customFormat = state.customFormat === fmt.value ? '' : fmt.value;
-            localStorage.setItem('customFormat', state.customFormat);
-            document.querySelectorAll('.custom-format-btn').forEach(b => {
-                const active = CUSTOM_FORMATS[parseInt(b.dataset.index, 10)].value === state.customFormat;
-                b.style.background = active ? '#7c3aed' : '#f9fafb';
-                b.style.color = active ? 'white' : '#374151';
-                b.style.borderColor = active ? '#7c3aed' : '#e5e7eb';
-            });
-            const genBtn = document.getElementById('customGenerateBtn');
-            if (genBtn) {
-                const can = !!(state.customFormat || state.customTopic.trim());
-                genBtn.disabled = !can;
-                genBtn.style.background = can ? '#7c3aed' : '#d1d5db';
+            if (!confirm(`「${btn.closest('.scene-card')?.querySelector('span:nth-child(2)')?.textContent}」を削除しますか？`)) return;
+            const { domain, sceneId } = btn.dataset;
+            if (state.userScenes[domain]) {
+                state.userScenes[domain] = state.userScenes[domain].filter(s => s.id !== sceneId);
+                localStorage.setItem('userScenes', JSON.stringify(state.userScenes));
             }
-        });
-    });
-
-    // Custom: topic text
-    const customTopicArea = document.getElementById('customTopicArea');
-    if (customTopicArea) {
-        customTopicArea.addEventListener('input', () => {
-            state.customTopic = customTopicArea.value;
-            localStorage.setItem('customTopic', state.customTopic);
-            const genBtn = document.getElementById('customGenerateBtn');
-            if (genBtn) {
-                const can = !!(state.customFormat || state.customTopic.trim());
-                genBtn.disabled = !can;
-                genBtn.style.background = can ? '#7c3aed' : '#d1d5db';
-            }
-        });
-    }
-
-    // Custom: generate
-    const customGenerateBtn = document.getElementById('customGenerateBtn');
-    if (customGenerateBtn) {
-        customGenerateBtn.addEventListener('click', async () => {
-            if (!state.customFormat && !state.customTopic.trim()) return;
-            const card = document.getElementById('customFormCard');
-            if (card) showLoading(card);
-            try {
-                const ep = await generateEpisode('custom', state.customTopic.trim(), state.customFormat);
-                state.episodes['custom'] = ep;
-                localStorage.setItem('episodes', JSON.stringify(state.episodes));
-                state.currentEpisode = ep;
-                state.view = 'episode';
-                render();
-            } catch (err) {
-                if (card) showError(card, err.message);
-            }
-        });
-    }
-
-    // Phrases: delete single
-    document.querySelectorAll('.delete-phrase-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            state.savedPhrases.splice(parseInt(btn.dataset.index, 10), 1);
-            localStorage.setItem('savedPhrases', JSON.stringify(state.savedPhrases));
             render();
         });
     });
 
-    // Phrases: clear all
-    const clearPhrasesBtn = document.getElementById('clearPhrasesBtn');
-    if (clearPhrasesBtn) {
-        clearPhrasesBtn.addEventListener('click', () => {
-            if (confirm('保存したフレーズをすべて削除しますか？')) {
-                state.savedPhrases = [];
-                localStorage.setItem('savedPhrases', '[]');
-                render();
-            }
-        });
-    }
+    // Scene view: back
+    document.getElementById('backToLearnBtn')?.addEventListener('click', () => {
+        state.view = 'main'; state.bottomTab = 'learn'; render();
+    });
 
-    // Settings: save API key
-    const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
-    if (saveApiKeyBtn) {
-        saveApiKeyBtn.addEventListener('click', () => {
-            const newKey = document.getElementById('settingsApiKey').value.trim();
-            if (newKey) {
-                state.apiKey = newKey;
-                localStorage.setItem('apiKey', newKey);
-                alert('APIキーを保存しました');
-            }
-        });
-    }
+    // Scene view: level change
+    document.querySelectorAll('.scene-view-level-btn').forEach(btn => {
+        btn.addEventListener('click', () => { state.selectedLevel = btn.dataset.level; render(); });
+    });
 
-    // Settings: save voices
-    const saveVoicesBtn = document.getElementById('saveVoicesBtn');
-    if (saveVoicesBtn) {
-        saveVoicesBtn.addEventListener('click', () => {
-            speechSynthesis.cancel();
-            state.voiceNameA = document.getElementById('voiceSelectA').value;
-            state.voiceNameB = document.getElementById('voiceSelectB').value;
-            localStorage.setItem('voiceNameA', state.voiceNameA);
-            localStorage.setItem('voiceNameB', state.voiceNameB);
-            alert('音声設定を保存しました');
-        });
-    }
+    // Scene view: format toggle
+    document.getElementById('toggleFormatBtn')?.addEventListener('click', () => {
+        state.showFormatPanel = !state.showFormatPanel; render();
+    });
 
-    // Settings: preview buttons
-    const previewBtnA = document.getElementById('previewBtnA');
-    if (previewBtnA) {
-        previewBtnA.addEventListener('click', () => previewVoice('voiceSelectA', 'previewBtnA'));
-    }
-    const previewBtnB = document.getElementById('previewBtnB');
-    if (previewBtnB) {
-        previewBtnB.addEventListener('click', () => previewVoice('voiceSelectB', 'previewBtnB'));
-    }
-
-    // Settings: speed
-    document.querySelectorAll('.settings-speed-btn').forEach(btn => {
+    // Scene view: format chips
+    document.querySelectorAll('.format-chip').forEach(btn => {
         btn.addEventListener('click', () => {
-            state.ttsRate = parseFloat(btn.dataset.rate);
-            localStorage.setItem('ttsRate', String(state.ttsRate));
-            document.querySelectorAll('.settings-speed-btn').forEach(b => {
-                const active = parseFloat(b.dataset.rate) === state.ttsRate;
-                b.style.background = active ? 'var(--primary)' : '#f3f4f6';
-                b.style.color = active ? 'white' : '#374151';
-            });
+            state.selectedFormat = btn.dataset.value; render();
         });
     });
 
-    // Settings: clear episodes
-    const clearEpisodesBtn = document.getElementById('clearEpisodesBtn');
-    if (clearEpisodesBtn) {
-        clearEpisodesBtn.addEventListener('click', () => {
-            if (confirm('生成済みエピソードをすべて削除しますか？フレーズ帳は残ります。')) {
-                state.episodes = {};
-                localStorage.setItem('episodes', '{}');
-                render();
-            }
-        });
-    }
+    // Scene view: generate
+    document.getElementById('generateBtn')?.addEventListener('click', () => {
+        const card = document.getElementById('sceneGenerateCard');
+        doGenerate(card);
+    });
 
-    // Settings: clear all
-    const clearAllDataBtn = document.getElementById('clearAllDataBtn');
-    if (clearAllDataBtn) {
-        clearAllDataBtn.addEventListener('click', () => {
-            if (confirm('すべてのデータ（エピソード・フレーズ帳・設定）をリセットしますか？\nこの操作は取り消せません。')) {
-                localStorage.clear();
-                location.reload();
-            }
-        });
-    }
+    // Scene view: open episode
+    document.getElementById('openEpisodeBtn')?.addEventListener('click', () => {
+        const key = episodeKey(state.selectedScene.domainId, state.selectedScene.sceneId, state.selectedLevel);
+        state.currentEpisode = state.episodes[key];
+        state.view = 'episode'; render();
+    });
+
+    // Scene view: regenerate
+    document.getElementById('regenerateBtn')?.addEventListener('click', () => {
+        const card = document.getElementById('sceneEpisodeCard');
+        doGenerate(card);
+    });
 
     // Episode: back
-    const backBtn = document.getElementById('backBtn');
-    if (backBtn) {
-        backBtn.addEventListener('click', () => {
-            speechSynthesis.cancel();
-            state.isPlaying = false;
-            state.isPaused = false;
-            state.view = 'main';
-            render();
-        });
-    }
+    document.getElementById('backBtn')?.addEventListener('click', () => {
+        speechSynthesis.cancel();
+        state.isPlaying = false; state.isPaused = false;
+        state.view = state.selectedScene ? 'scene' : 'main';
+        render();
+    });
 
     // Episode: translation toggle
-    const translationToggleBtn = document.getElementById('translationToggleBtn');
-    if (translationToggleBtn) {
-        translationToggleBtn.addEventListener('click', () => {
+    const tlBtn = document.getElementById('translationToggleBtn');
+    if (tlBtn) {
+        tlBtn.addEventListener('click', () => {
             state.showTranslations = !state.showTranslations;
             document.querySelectorAll('.translation-text').forEach(el => {
                 el.style.display = state.showTranslations ? 'block' : 'none';
             });
-            translationToggleBtn.style.background = state.showTranslations ? 'var(--primary)' : '#f3f4f6';
-            translationToggleBtn.style.color = state.showTranslations ? 'white' : '#374151';
+            tlBtn.style.background = state.showTranslations ? 'var(--primary)' : '#f3f4f6';
+            tlBtn.style.color      = state.showTranslations ? 'white' : '#374151';
         });
     }
 
-    // Episode: speed (player)
+    // Episode: speed
     document.querySelectorAll('.speed-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             state.ttsRate = parseFloat(btn.dataset.rate);
@@ -1386,45 +1269,30 @@ function attachListeners() {
     }
 
     // Episode: stop
-    const stopBtn = document.getElementById('stopBtn');
-    if (stopBtn) {
-        stopBtn.addEventListener('click', () => {
-            clearTimeout(ttsPauseTimer);
-            speechSynthesis.cancel();
-            state.isPlaying = false; state.isPaused = false;
-            ttsIndex = 0;
-            updatePlayerUI();
-            updateProgressBar();
-            document.querySelectorAll('.seg-card').forEach(el => el.classList.remove('playing'));
-        });
-    }
+    document.getElementById('stopBtn')?.addEventListener('click', () => {
+        clearTimeout(ttsPauseTimer); speechSynthesis.cancel();
+        state.isPlaying = false; state.isPaused = false; ttsIndex = 0;
+        updatePlayerUI(); updateProgressBar();
+        document.querySelectorAll('.seg-card').forEach(el => el.classList.remove('playing'));
+    });
 
     // Episode: rewind
-    const rewindBtn = document.getElementById('rewindBtn');
-    if (rewindBtn) {
-        rewindBtn.addEventListener('click', () => {
-            clearTimeout(ttsPauseTimer);
-            speechSynthesis.cancel();
-            ttsIndex = 0;
-            if (state.isPlaying) ttsSpeak(state.currentEpisode);
-            updateProgressBar();
-        });
-    }
+    document.getElementById('rewindBtn')?.addEventListener('click', () => {
+        clearTimeout(ttsPauseTimer); speechSynthesis.cancel();
+        ttsIndex = 0;
+        if (state.isPlaying) ttsSpeak(state.currentEpisode);
+        updateProgressBar();
+    });
 
     // Episode: save phrase
     document.querySelectorAll('.save-phrase-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const phrase = decodeURIComponent(btn.dataset.phrase);
+            const phrase      = decodeURIComponent(btn.dataset.phrase);
             const explanation = decodeURIComponent(btn.dataset.explanation);
             const episodeTitle = decodeURIComponent(btn.dataset.episode);
             const idx = state.savedPhrases.findIndex(s => s.phrase === phrase);
-            if (idx !== -1) {
-                state.savedPhrases.splice(idx, 1);
-                btn.textContent = '☆';
-            } else {
-                state.savedPhrases.unshift({ phrase, explanation, episodeTitle, savedAt: new Date().toISOString() });
-                btn.textContent = '⭐';
-            }
+            if (idx !== -1) { state.savedPhrases.splice(idx, 1); btn.textContent = '☆'; }
+            else { state.savedPhrases.unshift({ phrase, explanation, episodeTitle, savedAt: new Date().toISOString() }); btn.textContent = '⭐'; }
             localStorage.setItem('savedPhrases', JSON.stringify(state.savedPhrases));
         });
     });
@@ -1433,22 +1301,18 @@ function attachListeners() {
     document.querySelectorAll('.highlight-phrase').forEach(el => {
         el.addEventListener('click', e => {
             e.stopPropagation();
-            const phraseId = `${el.dataset.seg}-${el.dataset.hi}`;
+            const pid = `${el.dataset.seg}-${el.dataset.hi}`;
             document.querySelectorAll('.phrase-tooltip').forEach(t => t.remove());
             document.querySelectorAll('.highlight-phrase.active').forEach(h => h.classList.remove('active'));
-            if (state.activePhrase === phraseId) { state.activePhrase = null; return; }
-            state.activePhrase = phraseId;
+            if (state.activePhrase === pid) { state.activePhrase = null; return; }
+            state.activePhrase = pid;
             el.classList.add('active');
-            const phrase = decodeURIComponent(el.dataset.phrase);
-            const explanation = decodeURIComponent(el.dataset.explanation);
             const tooltip = document.createElement('div');
             tooltip.className = 'phrase-tooltip fade-in';
-            tooltip.innerHTML = `<strong style="color:#fde68a;">${escapeHtml(phrase)}</strong><br><span style="color:#e2e8f0;font-size:12px;">${escapeHtml(explanation)}</span>`;
-            const card = el.closest('.seg-card');
-            if (card) card.appendChild(tooltip);
+            tooltip.innerHTML = `<strong style="color:#fde68a;">${escapeHtml(decodeURIComponent(el.dataset.phrase))}</strong><br><span style="color:#e2e8f0;font-size:12px;">${escapeHtml(decodeURIComponent(el.dataset.explanation))}</span>`;
+            el.closest('.seg-card')?.appendChild(tooltip);
         });
     });
-
     document.addEventListener('click', e => {
         if (!e.target.classList.contains('highlight-phrase')) {
             document.querySelectorAll('.phrase-tooltip').forEach(t => t.remove());
@@ -1456,37 +1320,75 @@ function attachListeners() {
             state.activePhrase = null;
         }
     }, { passive: true });
-}
 
-function previewVoice(selectId, btnId) {
-    const selectEl = document.getElementById(selectId);
-    const btn = document.getElementById(btnId);
-    if (!selectEl) return;
-    const voices = getEnglishVoices();
-    const voice = voices.find(v => v.name === selectEl.value);
-    speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(PREVIEW_TEXT);
-    utter.lang = 'en-US';
-    utter.rate = state.ttsRate;
-    if (voice) utter.voice = voice;
-    if (btn) {
-        btn.textContent = '⏹';
-        btn.style.background = '#ef4444';
-        utter.onend = utter.onerror = () => {
-            btn.textContent = '▶ 試聴';
-            btn.style.background = 'var(--primary)';
-        };
-    }
-    speechSynthesis.speak(utter);
+    // Phrases: delete single
+    document.querySelectorAll('.delete-phrase-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.savedPhrases.splice(parseInt(btn.dataset.index, 10), 1);
+            localStorage.setItem('savedPhrases', JSON.stringify(state.savedPhrases));
+            render();
+        });
+    });
+
+    // Phrases: clear all
+    document.getElementById('clearPhrasesBtn')?.addEventListener('click', () => {
+        if (confirm('保存したフレーズをすべて削除しますか？')) {
+            state.savedPhrases = []; localStorage.setItem('savedPhrases', '[]'); render();
+        }
+    });
+
+    // Settings: API key
+    document.getElementById('saveApiKeyBtn')?.addEventListener('click', () => {
+        const k = document.getElementById('settingsApiKey')?.value.trim();
+        if (k) { state.apiKey = k; localStorage.setItem('apiKey', k); alert('APIキーを保存しました'); }
+    });
+
+    // Settings: voices
+    document.getElementById('saveVoicesBtn')?.addEventListener('click', () => {
+        speechSynthesis.cancel();
+        state.voiceNameA = document.getElementById('voiceSelectA')?.value || '';
+        state.voiceNameB = document.getElementById('voiceSelectB')?.value || '';
+        localStorage.setItem('voiceNameA', state.voiceNameA);
+        localStorage.setItem('voiceNameB', state.voiceNameB);
+        alert('音声設定を保存しました');
+    });
+    document.getElementById('previewBtnA')?.addEventListener('click', () => previewVoice('voiceSelectA', 'previewBtnA'));
+    document.getElementById('previewBtnB')?.addEventListener('click', () => previewVoice('voiceSelectB', 'previewBtnB'));
+
+    // Settings: speed
+    document.querySelectorAll('.settings-speed-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.ttsRate = parseFloat(btn.dataset.rate);
+            localStorage.setItem('ttsRate', String(state.ttsRate));
+            document.querySelectorAll('.settings-speed-btn').forEach(b => {
+                const active = parseFloat(b.dataset.rate) === state.ttsRate;
+                b.style.background = active ? 'var(--primary)' : '#f3f4f6';
+                b.style.color = active ? 'white' : '#374151';
+            });
+        });
+    });
+
+    // Settings: clear episodes
+    document.getElementById('clearEpisodesBtn')?.addEventListener('click', () => {
+        if (confirm('エピソードキャッシュと進捗記録を削除しますか？フレーズ帳は残ります。')) {
+            state.episodes = {}; state.sceneProgress = {};
+            localStorage.setItem('episodes', '{}');
+            localStorage.setItem('sceneProgress', '{}');
+            render();
+        }
+    });
+
+    // Settings: clear all
+    document.getElementById('clearAllDataBtn')?.addEventListener('click', () => {
+        if (confirm('すべてのデータをリセットしますか？この操作は取り消せません。')) {
+            localStorage.clear(); location.reload();
+        }
+    });
 }
 
 // ===== INIT =====
-if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = initDefaultVoices;
-}
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-}
+if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = initDefaultVoices;
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 initDefaultVoices();
 render();
 </script>
