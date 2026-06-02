@@ -183,6 +183,13 @@ const CUSTOM_FORMATS = [
 
 const SPEAKER_COLORS = ['#4f46e5', '#10b981', '#f59e0b'];
 
+// Pitch and rate per speaker — ensures audible difference even on limited-voice devices
+const SPEAKER_SETTINGS = {
+    'A': { pitch: 1.0,  rateMult: 1.0  },  // normal male
+    'B': { pitch: 1.22, rateMult: 1.03  },  // clearly higher / female-leaning
+    'C': { pitch: 0.76, rateMult: 0.96  },  // distinctly deeper / slower
+};
+
 // ===== STATE =====
 const state = {
     view: localStorage.getItem('apiKey') ? 'main' : 'setup',
@@ -209,6 +216,7 @@ const state = {
 // ===== TTS ENGINE =====
 let ttsSegments = [];
 let ttsIndex = 0;
+let ttsPauseTimer = null;
 
 const VOICE_PRIORITY = [
     'Google US English', 'Google UK English Female', 'Google UK English Male',
@@ -261,6 +269,7 @@ function initDefaultVoices() {
 }
 
 function ttsSpeak(episode) {
+    clearTimeout(ttsPauseTimer);
     speechSynthesis.cancel();
     ttsSegments = episode.segments;
     ttsIndex = 0;
@@ -279,16 +288,28 @@ function ttsPlayNext() {
         return;
     }
     const seg = ttsSegments[ttsIndex];
+    const settings = SPEAKER_SETTINGS[seg.speaker] || SPEAKER_SETTINGS['A'];
+
     const utter = new SpeechSynthesisUtterance(seg.text);
     utter.lang = 'en-US';
-    utter.rate = state.ttsRate;
+    utter.rate = state.ttsRate * settings.rateMult;
+    utter.pitch = settings.pitch;
+
     const voice = getVoice(seg.speaker);
     if (voice) utter.voice = voice;
 
-    // Highlight current segment
     highlightSegment(ttsIndex);
 
-    utter.onend = () => { ttsIndex++; ttsPlayNext(); };
+    utter.onend = () => {
+        const nextSeg = ttsSegments[ttsIndex + 1];
+        // Longer pause on speaker change, shorter pause within same speaker
+        const speakerChanged = nextSeg && nextSeg.speaker !== seg.speaker;
+        const pauseMs = speakerChanged ? 750 : 380;
+        ttsIndex++;
+        ttsPauseTimer = setTimeout(() => {
+            if (state.isPlaying) ttsPlayNext();
+        }, pauseMs);
+    };
     utter.onerror = () => { state.isPlaying = false; updatePlayerUI(); };
     speechSynthesis.speak(utter);
 }
@@ -1368,6 +1389,7 @@ function attachListeners() {
     const stopBtn = document.getElementById('stopBtn');
     if (stopBtn) {
         stopBtn.addEventListener('click', () => {
+            clearTimeout(ttsPauseTimer);
             speechSynthesis.cancel();
             state.isPlaying = false; state.isPaused = false;
             ttsIndex = 0;
@@ -1381,6 +1403,7 @@ function attachListeners() {
     const rewindBtn = document.getElementById('rewindBtn');
     if (rewindBtn) {
         rewindBtn.addEventListener('click', () => {
+            clearTimeout(ttsPauseTimer);
             speechSynthesis.cancel();
             ttsIndex = 0;
             if (state.isPlaying) ttsSpeak(state.currentEpisode);
