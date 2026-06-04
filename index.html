@@ -118,16 +118,24 @@ const DOMAINS = [
     {
         id: 'daily', label: '日常・社交', emoji: '💬',
         scenes: [
-            { id: 'd1',  label: '初対面の挨拶',           prompt: 'first-time greetings and introductions in social settings, casual self-introductions, getting to know someone new' },
-            { id: 'd2',  label: '趣味・休日の話',         prompt: 'talking about hobbies, weekend activities, free time, and interests in casual conversation' },
-            { id: 'd3',  label: '家族・友人の話',         prompt: 'talking about family, friendships, and personal stories in casual conversation' },
-            { id: 'd4',  label: '感謝・褒める',           prompt: 'expressing gratitude, giving genuine compliments, acknowledging others\' achievements in natural English' },
-            { id: 'd5',  label: '誰かに頼む',             prompt: 'making polite requests, asking for help or favors, using appropriate politeness in various social situations' },
-            { id: 'd6',  label: '断る・やんわり避ける',   prompt: 'declining invitations and requests politely, making graceful excuses, saying no without offending' },
-            { id: 'd7',  label: '共感する・慰める',       prompt: 'showing empathy, comforting someone in difficulty, active listening and supportive responses' },
-            { id: 'd8',  label: '誘う・予定を決める',     prompt: 'inviting someone out, making plans, coordinating schedules, confirming arrangements' },
-            { id: 'd9',  label: '意見を交わす',           prompt: 'casual discussion and debate on everyday topics, respectfully sharing and challenging opinions' },
-            { id: 'd10', label: 'ユーモア・冗談',         prompt: 'humor, jokes, and playful banter in English: witty exchanges, self-deprecating humor, cultural references' },
+            { id: 'd1',  label: '初対面の挨拶',             prompt: 'first-time greetings and introductions in social settings, casual self-introductions, getting to know someone new' },
+            { id: 'd2',  label: '趣味・休日の話',           prompt: 'talking about hobbies, weekend activities, free time, and interests in casual conversation' },
+            { id: 'd3',  label: '家族・友人の話',           prompt: 'talking about family, friendships, and personal stories in casual conversation' },
+            { id: 'd4',  label: '感謝・褒める',             prompt: 'expressing gratitude, giving genuine compliments, acknowledging others\' achievements in natural English' },
+            { id: 'd5',  label: '誰かに頼む',               prompt: 'making polite requests and asking for favors: borrowing something, asking for a hand, requesting someone to do something for you' },
+            { id: 'd6',  label: '断る・やんわり避ける',     prompt: 'declining invitations and requests politely, making graceful excuses, saying no without offending' },
+            { id: 'd7',  label: '共感する・慰める',         prompt: 'showing empathy, comforting someone in difficulty, active listening and supportive responses' },
+            { id: 'd8',  label: '誘う・予定を決める',       prompt: 'inviting someone out, making plans, coordinating schedules, confirming arrangements' },
+            { id: 'd9',  label: '意見を交わす',             prompt: 'casual discussion and debate on everyday topics, respectfully sharing and challenging opinions' },
+            { id: 'd10', label: 'ユーモア・冗談',           prompt: 'humor, jokes, and playful banter in English: witty exchanges, self-deprecating humor, cultural references' },
+            { id: 'd11', label: '電話・メッセージで連絡する', prompt: 'phone calls and messaging: making and receiving calls, leaving voicemails, texting back and forth, clarifying details over the phone' },
+            { id: 'd12', label: '何かを提案・勧める',       prompt: 'making suggestions and recommendations: proposing ideas, recommending places or things, persuading someone to try something new' },
+            { id: 'd13', label: 'アドバイスをする・もらう', prompt: 'giving and receiving advice: asking what someone thinks you should do, offering helpful suggestions, responding to advice gracefully' },
+            { id: 'd14', label: '予定を変更・キャンセルする', prompt: 'changing or canceling plans: rescheduling meetings or outings, apologizing for changes, negotiating a new time' },
+            { id: 'd15', label: '許可を求める・与える',     prompt: 'asking for and granting permission: requesting to do something, checking if something is okay, politely allowing or refusing' },
+            { id: 'd16', label: '問題・不満を伝える',       prompt: 'raising a problem or complaint in daily life: telling someone something is wrong, expressing dissatisfaction calmly, resolving minor conflicts' },
+            { id: 'd17', label: '人を紹介する',             prompt: 'introducing people to each other: making introductions at a party or workplace, explaining how you know each other, making people feel comfortable' },
+            { id: 'd18', label: '体調・健康の話をする',     prompt: 'talking about health and well-being: describing symptoms, discussing exercise habits, sharing health worries or good news' },
         ]
     },
     {
@@ -381,11 +389,29 @@ function formatDate(iso) {
     return `${d.getMonth()+1}/${d.getDate()}`;
 }
 
+// Episodes are stored as arrays (newest first, max 5). Support legacy single-object format.
+function getEpisodeHistory(key) {
+    const stored = state.episodes[key];
+    if (!stored) return [];
+    return Array.isArray(stored) ? stored : [stored];
+}
+function getLatestEpisode(key) {
+    const h = getEpisodeHistory(key);
+    return h.length ? h[0] : null;
+}
+function saveEpisodeToHistory(key, ep) {
+    let history = getEpisodeHistory(key);
+    history.unshift(ep);
+    if (history.length > 5) history = history.slice(0, 5);
+    state.episodes[key] = history;
+}
+
 function getLastEpisode() {
     const keys = Object.keys(state.episodes);
     if (!keys.length) return null;
     return keys.reduce((best, k) => {
-        const ep = state.episodes[k];
+        const ep = getLatestEpisode(k);
+        if (!ep) return best;
         if (!best) return ep;
         return new Date(ep.generatedAt) > new Date(best.generatedAt) ? ep : best;
     }, null);
@@ -714,7 +740,8 @@ function renderSceneView() {
     const domain  = getDomain(domainId);
     const scene   = getScene(domainId, sceneId);
     const key     = episodeKey(domainId, sceneId, state.selectedLevel);
-    const cached  = state.episodes[key];
+    const cached  = getLatestEpisode(key);
+    const history = getEpisodeHistory(key);
     const lv      = LEVELS.find(l => l.id === state.selectedLevel);
 
     return `
@@ -787,23 +814,38 @@ function renderSceneView() {
 
 function renderSceneEpisodeCard(ep, key) {
     const lv = LEVELS.find(l => l.id === state.selectedLevel);
+    const history = getEpisodeHistory(key);
+    const olderEps = history.slice(1); // everything except the latest
+
     return `
-    <div class="card" style="overflow:hidden;" id="sceneEpisodeCard">
-      <div style="background:linear-gradient(135deg,var(--primary),#6d28d9);padding:16px 20px 14px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-          <p style="color:#a5b4fc;font-size:11px;font-weight:700;text-transform:uppercase;margin:0;">${lv.emoji} ${lv.label}</p>
-          <span style="color:#a5b4fc;font-size:11px;">${formatDate(ep.generatedAt)}</span>
+    <div id="sceneEpisodeCard">
+      <div class="card" style="overflow:hidden;">
+        <div style="background:linear-gradient(135deg,var(--primary),#6d28d9);padding:16px 20px 14px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <p style="color:#a5b4fc;font-size:11px;font-weight:700;text-transform:uppercase;margin:0;">${lv.emoji} ${lv.label}</p>
+            <span style="color:#a5b4fc;font-size:11px;">${formatDate(ep.generatedAt)} 生成</span>
+          </div>
+          <h2 style="color:white;font-size:16px;font-weight:800;margin:6px 0 4px;line-height:1.3;">${escapeHtml(ep.title)}</h2>
+          <p style="color:#a5b4fc;font-size:12px;margin:0;">⏱ ${ep.duration||'2 min'} · ${ep.speakers?.length||2}名</p>
         </div>
-        <h2 style="color:white;font-size:16px;font-weight:800;margin:6px 0 4px;line-height:1.3;">${escapeHtml(ep.title)}</h2>
-        <p style="color:#a5b4fc;font-size:12px;margin:0;">⏱ ${ep.duration||'2 min'} · ${ep.speakers?.length||2}名</p>
+        <div style="padding:14px 20px;">
+          <p style="color:#6b7280;font-size:13px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(ep.segments[0]?.text||'')}</p>
+          <button id="openEpisodeBtn" class="btn-primary" style="width:100%;margin-top:12px;padding:13px;font-size:15px;">学習を始める →</button>
+          <button id="regenerateBtn" style="width:100%;margin-top:8px;padding:11px;border-radius:14px;border:1.5px solid #e5e7eb;background:white;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;">
+            🔄 新しく生成する（内容が変わります）
+          </button>
+        </div>
       </div>
-      <div style="padding:14px 20px;">
-        <p style="color:#6b7280;font-size:13px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(ep.segments[0]?.text||'')}</p>
-        <button id="openEpisodeBtn" class="btn-primary" style="width:100%;margin-top:12px;padding:13px;font-size:15px;">学習を始める →</button>
-        <button id="regenerateBtn" style="width:100%;margin-top:8px;padding:11px;border-radius:14px;border:1.5px solid #e5e7eb;background:white;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;">
-          🔄 新しく生成する
-        </button>
-      </div>
+      ${olderEps.length > 0 ? `
+      <div style="margin-top:12px;">
+        <p style="font-size:12px;font-weight:700;color:#6b7280;margin:0 0 8px;">📂 過去のエピソード（${olderEps.length}件）</p>
+        ${olderEps.map((old, idx) => `
+        <button class="history-ep-btn" data-index="${idx + 1}"
+          style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;border:1px solid #e5e7eb;background:white;cursor:pointer;margin-bottom:6px;">
+          <span style="font-size:13px;color:#374151;font-weight:600;">${escapeHtml(old.title)}</span>
+          <span style="font-size:11px;color:#9ca3af;flex-shrink:0;margin-left:8px;">${formatDate(old.generatedAt)} ▶</span>
+        </button>`).join('')}
+      </div>` : ''}
     </div>`;
 }
 
@@ -1063,7 +1105,7 @@ async function doGenerate(container) {
     try {
         const ep = await generateEpisode({ domainId, sceneId, levelId: state.selectedLevel, format: state.selectedFormat });
         const key = episodeKey(domainId, sceneId, state.selectedLevel);
-        state.episodes[key] = ep;
+        saveEpisodeToHistory(key, ep);  // preserves past episodes (max 5)
         localStorage.setItem('episodes', JSON.stringify(state.episodes));
         // Record progress
         const pk = progressKey(domainId, sceneId, state.selectedLevel);
@@ -1198,11 +1240,24 @@ function attachListeners() {
         doGenerate(card);
     });
 
-    // Scene view: open episode
+    // Scene view: open episode (latest)
     document.getElementById('openEpisodeBtn')?.addEventListener('click', () => {
         const key = episodeKey(state.selectedScene.domainId, state.selectedScene.sceneId, state.selectedLevel);
-        state.currentEpisode = state.episodes[key];
+        state.currentEpisode = getLatestEpisode(key);
         state.view = 'episode'; render();
+    });
+
+    // Scene view: open history episode
+    document.querySelectorAll('.history-ep-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.index, 10);
+            const key = episodeKey(state.selectedScene.domainId, state.selectedScene.sceneId, state.selectedLevel);
+            const history = getEpisodeHistory(key);
+            if (history[idx]) {
+                state.currentEpisode = history[idx];
+                state.view = 'episode'; render();
+            }
+        });
     });
 
     // Scene view: regenerate
