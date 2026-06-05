@@ -1,7 +1,7 @@
 {
-  "name": "EigoDaily",
-  "short_name": "EigoDaily",
-  "description": "ビジネス英語を毎日2分で学ぶPWAアプリ",
+  "name": "English App",
+  "short_name": "English App",
+  "description": "英語を毎日2分で学ぶPWAアプリ",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
